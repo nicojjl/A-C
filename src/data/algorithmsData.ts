@@ -1,13 +1,5 @@
 import { AlgorithmItem, AlgoCategory } from '../types';
 
-export const ALGO_CATEGORIES: { id: AlgoCategory; label: string; count: number; icon: string }[] = [
-  { id: 'conceptos', label: 'Conceptos Fundamentales', count: 7, icon: '💡' },
-  { id: 'estructuras', label: 'Estructuras de Datos', count: 8, icon: '📦' },
-  { id: 'ordenamiento', label: 'Ordenamiento (Sorting)', count: 8, icon: '📊' },
-  { id: 'busqueda_grafos', label: 'Búsqueda y Grafos', count: 6, icon: '🕸️' },
-  { id: 'dp_backtracking', label: 'Prog. Dinámica & Backtracking', count: 5, icon: '🧩' },
-];
-
 export const ALGORITHMS_DATA: AlgorithmItem[] = [
   // ----------------------------------------------------
   // 1. BUBBLE SORT
@@ -2142,3 +2134,14 @@ bool solveNQ(std::vector<std::vector<int>>& board, int col, int n) {
     exercises: []
   }
 ];
+
+export const ALGO_CATEGORIES: { id: AlgoCategory; label: string; count: number; icon: string }[] = [
+  { id: 'conceptos' as AlgoCategory, label: 'Conceptos Fundamentales', icon: '💡', count: 0 },
+  { id: 'estructuras' as AlgoCategory, label: 'Estructuras de Datos', icon: '📦', count: 0 },
+  { id: 'ordenamiento' as AlgoCategory, label: 'Ordenamiento (Sorting)', icon: '📊', count: 0 },
+  { id: 'busqueda_grafos' as AlgoCategory, label: 'Búsqueda y Grafos', icon: '🕸️', count: 0 },
+  { id: 'dp_backtracking' as AlgoCategory, label: 'Prog. Dinámica & Backtracking', icon: '🧩', count: 0 },
+].map(cat => ({
+  ...cat,
+  count: ALGORITHMS_DATA.filter(a => a.category === cat.id).length
+}));

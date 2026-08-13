@@ -4,7 +4,6 @@ import { Zap, Terminal, GraduationCap, ArrowRight, Sparkles, Trophy, Flame, Awar
 import { motion } from 'motion/react';
 import { UpdatesSection } from './UpdatesSection';
 import { LiveTelemetryWidget } from './LiveTelemetryWidget';
-import { CertamenesSection } from './CertamenesSection';
 
 interface DashboardViewProps {
   courses: CourseItem[];
@@ -232,11 +231,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <ArrowRight className="w-4 h-4" />
             </div>
           </motion.div>
-        </div>
-
-        {/* CERTÁMENES DE ALGORÍTMICA (USM / ELO320) */}
-        <div id="certamenes-section" className="pt-4 scroll-mt-6">
-          <CertamenesSection />
         </div>
 
         {/* REAL-TIME TELEMETRY PANEL (Santiago Time, Valparaíso Weather with condition, and Earthquake API) */}

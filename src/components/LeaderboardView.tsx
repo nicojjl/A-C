@@ -31,6 +31,7 @@ interface LeaderboardViewProps {
   completedCSubtopics: string[];
   userProfile: UserProfile;
   onUpdateProfile: (updatedProfile: UserProfile) => void;
+  onBackToDashboard?: () => void;
 }
 
 export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
@@ -39,6 +40,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
   completedCSubtopics,
   userProfile,
   onUpdateProfile,
+  onBackToDashboard,
 }) => {
   const [activeTab, setActiveTab] = useState<'global' | 'university' | 'streaks' | 'achievements'>('global');
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -141,6 +143,17 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
 
   return (
     <div className="flex-1 bg-[#F9F8F6] text-[#1A1A1A] p-4 sm:p-6 lg:p-10 overflow-y-auto space-y-8 selection:bg-[#C2410C] selection:text-white">
+      
+      {/* Back Button */}
+      {onBackToDashboard && (
+        <button
+          onClick={onBackToDashboard}
+          className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#C2410C] hover:text-[#9A3412] uppercase tracking-wider transition-colors mb-4"
+        >
+          <span className="text-lg leading-none">&larr;</span> VOLVER AL MENÚ PRINCIPAL
+        </button>
+      )}
+
       {/* Top Banner: User Profile & XP Stats Card */}
       <div className="bg-white border border-[#E5E2DE] rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#FFF7ED] rounded-full blur-2xl pointer-events-none" />

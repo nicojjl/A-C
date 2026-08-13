@@ -318,11 +318,18 @@ export const LiveTelemetryWidget: React.FC = () => {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-1">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-red-600/80 block truncate">
-                Último Sismo (Chile)
-              </span>
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-red-600/80 block truncate">
+                  Último Sismo (Chile)
+                </span>
+                {earthquake.error && (
+                  <span className="text-[9px] font-mono font-bold text-red-700 bg-red-100 px-1.5 py-0.2 rounded whitespace-nowrap">
+                    Estimado
+                  </span>
+                )}
+              </div>
               {earthquake.data && (
-                <span className="text-[10px] font-mono font-bold bg-red-600 text-white px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-mono font-bold bg-red-600 text-white px-2 py-0.5 rounded-full shrink-0">
                   M {earthquake.data.magnitude}
                 </span>
               )}

@@ -81,8 +81,6 @@ export interface CourseItem {
   checkQuestions: CheckQuestion[];
   exercises: Exercise[];
   visualizerType: VisualizerType;
-  deepeningSubclass?: DeepeningSubclass;
-  practiceSubclass?: PracticeSubclass;
   nextItemId?: string;
   prevItemId?: string;
 }

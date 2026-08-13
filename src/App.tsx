@@ -3,24 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { COURSES_DATA } from './data/coursesData';
 import { CourseItem, Exercise } from './types';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
-import { ClassView } from './components/ClassView';
-import { ExercisePlayground } from './components/ExercisePlayground';
-import { DashboardView } from './components/DashboardView';
-import { CCourseView } from './components/CCourseView';
-import { AlgorithmVisualizerView } from './components/AlgorithmVisualizerView';
-import { LeaderboardView } from './components/LeaderboardView';
-import { CertamenesView } from './components/CertamenesView';
 import { UserProfile } from './types';
 import { calculateUserXP, getLevelInfo, checkAndUpateStreak } from './utils/gamification';
 import { decodeShareCode, SharedCodePayload } from './utils/codeSharing';
 import { SharedCodeNotificationModal } from './components/SharedCodeNotificationModal';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { BookOpen, Code, LayoutDashboard, Terminal, Zap, Share2 } from 'lucide-react';
+
+const ClassView = lazy(() => import('./components/ClassView').then(m => ({ default: m.ClassView })));
+const ExercisePlayground = lazy(() => import('./components/ExercisePlayground').then(m => ({ default: m.ExercisePlayground })));
+const DashboardView = lazy(() => import('./components/DashboardView').then(m => ({ default: m.DashboardView })));
+const CCourseView = lazy(() => import('./components/CCourseView').then(m => ({ default: m.CCourseView })));
+const AlgorithmVisualizerView = lazy(() => import('./components/AlgorithmVisualizerView').then(m => ({ default: m.AlgorithmVisualizerView })));
+const LeaderboardView = lazy(() => import('./components/LeaderboardView').then(m => ({ default: m.LeaderboardView })));
+const CertamenesView = lazy(() => import('./components/CertamenesView').then(m => ({ default: m.CertamenesView })));
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'dashboard' | 'class' | 'c_course' | 'visualizer' | 'leaderboard' | 'certamenes'>('dashboard');
@@ -249,8 +250,8 @@ export default function App() {
 
       {/* Main Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-        {/* Left Sidebar (Hidden on Dashboard / Home view) */}
-        {viewMode !== 'dashboard' && (
+        {/* Left Sidebar (Hidden on Dashboard, Leaderboard, and Certamenes views) */}
+        {viewMode !== 'dashboard' && viewMode !== 'leaderboard' && viewMode !== 'certamenes' && (
           <Sidebar
             items={COURSES_DATA}
             selectedItemId={selectedItemId}
@@ -348,75 +349,82 @@ export default function App() {
 
           {/* Active View Display */}
           <div className="flex-1 overflow-y-auto flex flex-col">
-            {viewMode === 'certamenes' ? (
-              <CertamenesView onBackToDashboard={() => setViewMode('dashboard')} />
-            ) : viewMode === 'leaderboard' ? (
-              <LeaderboardView
-                completedItemIds={completedItemIds}
-                solvedExerciseIds={solvedExerciseIds}
-                completedCSubtopics={completedCSubtopics}
-                userProfile={userProfile}
-                onUpdateProfile={(updated) => setUserProfile(updated)}
-              />
-            ) : viewMode === 'visualizer' ? (
-              <AlgorithmVisualizerView
-                selectedAlgoId={selectedAlgoId}
-                onSelectAlgorithm={(algoId) => setSelectedAlgoId(algoId)}
-              />
-            ) : viewMode === 'dashboard' ? (
-              <DashboardView
-                courses={COURSES_DATA}
-                completedItemIds={completedItemIds}
-                solvedExerciseIds={solvedExerciseIds}
-                onSelectClass={handleSelectClass}
-                onOpenGlobalExercise={handleOpenGlobalExercise}
-                onSelectCChapter={handleSelectCChapter}
-                onOpenVisualizer={() => setViewMode('visualizer')}
-                onOpenCCourse={() => setViewMode('c_course')}
-                onOpenAlgoCourse={() => {
-                  setSelectedItemId('clase-1');
-                  setViewMode('class');
-                }}
-                onOpenLeaderboard={() => setViewMode('leaderboard')}
-                onOpenCertamenes={() => setViewMode('certamenes')}
-                userXP={userXP}
-                userLevel={levelInfo.level}
-                streakDays={userProfile.streakDays}
-              />
-            ) : viewMode === 'c_course' ? (
-              <CCourseView
-                completedSubtopics={completedCSubtopics}
-                onToggleSubtopicCompleted={handleToggleCSubtopicCompleted}
-                selectedChapterId={selectedCChapterId}
-                onSelectSubtopic={(chapId) => handleSelectCChapter(chapId)}
-              />
-            ) : activeTab === 'theory' ? (
-              <ClassView
-                item={currentItem}
-                onNextClass={currentItem.nextItemId ? handleNextClass : undefined}
-                onPrevClass={currentItem.prevItemId ? handlePrevClass : undefined}
-                isCompleted={completedItemIds.includes(currentItem.id)}
-                onToggleCompleted={() => handleToggleCompleted(currentItem.id)}
-                onOpenExercise={() => setActiveTab('exercises')}
-              />
-            ) : (
-              <div className="p-4 sm:p-6 lg:p-8 flex-1">
-                <ExercisePlayground
-                  exercises={
-                    importedExercise
-                      ? [importedExercise, ...currentExercises]
-                      : currentExercises.length > 0
-                      ? currentExercises
-                      : []
-                  }
-                  onSolved={(exerciseId) => {
-                    if (!solvedExerciseIds.includes(exerciseId)) {
-                      setSolvedExerciseIds((prev) => [...prev, exerciseId]);
-                    }
-                  }}
-                />
+            <Suspense fallback={
+              <div className="flex-1 flex items-center justify-center p-8 text-[#8C8882] font-mono text-sm">
+                Cargando módulo...
               </div>
-            )}
+            }>
+              {viewMode === 'certamenes' ? (
+                <CertamenesView onBackToDashboard={() => setViewMode('dashboard')} />
+              ) : viewMode === 'leaderboard' ? (
+                <LeaderboardView
+                  completedItemIds={completedItemIds}
+                  solvedExerciseIds={solvedExerciseIds}
+                  completedCSubtopics={completedCSubtopics}
+                  userProfile={userProfile}
+                  onUpdateProfile={(updated) => setUserProfile(updated)}
+                  onBackToDashboard={() => setViewMode('dashboard')}
+                />
+              ) : viewMode === 'visualizer' ? (
+                <AlgorithmVisualizerView
+                  selectedAlgoId={selectedAlgoId}
+                  onSelectAlgorithm={(algoId) => setSelectedAlgoId(algoId)}
+                />
+              ) : viewMode === 'dashboard' ? (
+                <DashboardView
+                  courses={COURSES_DATA}
+                  completedItemIds={completedItemIds}
+                  solvedExerciseIds={solvedExerciseIds}
+                  onSelectClass={handleSelectClass}
+                  onOpenGlobalExercise={handleOpenGlobalExercise}
+                  onSelectCChapter={handleSelectCChapter}
+                  onOpenVisualizer={() => setViewMode('visualizer')}
+                  onOpenCCourse={() => setViewMode('c_course')}
+                  onOpenAlgoCourse={() => {
+                    setSelectedItemId('clase-1');
+                    setViewMode('class');
+                  }}
+                  onOpenLeaderboard={() => setViewMode('leaderboard')}
+                  onOpenCertamenes={() => setViewMode('certamenes')}
+                  userXP={userXP}
+                  userLevel={levelInfo.level}
+                  streakDays={userProfile.streakDays}
+                />
+              ) : viewMode === 'c_course' ? (
+                <CCourseView
+                  completedSubtopics={completedCSubtopics}
+                  onToggleSubtopicCompleted={handleToggleCSubtopicCompleted}
+                  selectedChapterId={selectedCChapterId}
+                  onSelectSubtopic={(chapId) => handleSelectCChapter(chapId)}
+                />
+              ) : activeTab === 'theory' ? (
+                <ClassView
+                  item={currentItem}
+                  onNextClass={currentItem.nextItemId ? handleNextClass : undefined}
+                  onPrevClass={currentItem.prevItemId ? handlePrevClass : undefined}
+                  isCompleted={completedItemIds.includes(currentItem.id)}
+                  onToggleCompleted={() => handleToggleCompleted(currentItem.id)}
+                  onOpenExercise={() => setActiveTab('exercises')}
+                />
+              ) : (
+                <div className="p-4 sm:p-6 lg:p-8 flex-1">
+                  <ExercisePlayground
+                    exercises={
+                      importedExercise
+                        ? [importedExercise, ...currentExercises]
+                        : currentExercises.length > 0
+                        ? currentExercises
+                        : []
+                    }
+                    onSolved={(exerciseId) => {
+                      if (!solvedExerciseIds.includes(exerciseId)) {
+                        setSolvedExerciseIds((prev) => [...prev, exerciseId]);
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </Suspense>
           </div>
         </main>
       </div>
