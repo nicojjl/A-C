@@ -17,6 +17,8 @@ interface DashboardViewProps {
   onOpenAlgoCourse?: () => void;
   onOpenLeaderboard?: () => void;
   onOpenCertamenes?: () => void;
+  onOpenLaboratories?: () => void;
+  onOpenFlashcards?: () => void;
   userXP?: number;
   userLevel?: number;
   streakDays?: number;
@@ -31,6 +33,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenAlgoCourse,
   onOpenLeaderboard,
   onOpenCertamenes,
+  onOpenLaboratories,
+  onOpenFlashcards,
   userXP = 0,
   userLevel = 1,
   streakDays = 1,
@@ -71,7 +75,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* 5 Main Entry Tiles / Viñetas Centradas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-5">
           {/* TILE 1: ALGORITMOS */}
           <motion.div
             whileHover={{ y: -6, transition: { duration: 0.2 } }}

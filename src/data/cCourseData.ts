@@ -41,8 +41,7 @@ export const C_COURSE_DATA: CChapter[] = [
         whyItWorks: 'Demuestra con claridad por qué modificar un parámetro dentro de una función en C no afecta la variable original en main().'
       }
     ],
-    theoryContent: `
-# Capítulo 1: Introducción General (El Tutorial K&R)
+    theoryContent: `# Capítulo 1: Introducción General (El Tutorial K&R)
 
 ---
 
@@ -51,15 +50,12 @@ export const C_COURSE_DATA: CChapter[] = [
 ### C: La Lengua Franca de la Computación de Sistemas
 El lenguaje **C** no es simplemente un lenguaje de programación más; es la infraestructura invisible sobre la cual opera el mundo digital moderno. Diseñado entre 1969 y 1973 por **Dennis Ritchie** en los Laboratorios Bell de AT&T para reescribir el sistema operativo UNIX, C logró una hazaña inédita: combinar la velocidad y el acceso directo a la memoria RAM propios del lenguaje Ensamblador con la abstracción elegante y estructurada de un lenguaje de alto nivel.
 
-A diferencia de lenguajes interpretados o gestionados por una máquina virtual (como Python, JavaScript o Java), C se compila directamente a código máquina nativo del procesador. No existe una capa de gestión de memoria (*Garbage Collector*) ni abstracciones ocultas en tiempo de ejecución. Cada variable ocupa una ubicación física real en la memoria RAM y cada instrucción de C se traduce casi 1:1 a instrucciones de la CPU.
+A diferencia de lenguajes interpretados o gestionados por una máquina virtual (como Python, JavaScript o Java), C se compila directamente a código máquina nativo del procesador. No existe una capa de gestión de memoria (*Garbage Collector*). Cada variable ocupa una ubicación física real en la memoria RAM y cada instrucción de C se traduce casi 1:1 a instrucciones de la CPU.
 
 ### Breve Contexto Histórico
 * **1972 – Dennis Ritchie**: Diseña el lenguaje C en Bell Labs como sucesor del lenguaje B (de Ken Thompson).
 * **1978 – Kernighan & Ritchie (K&R)**: Publican *The C Programming Language*, el célebre "Libro Blanco" que definió el primer estándar informal de C (*K&R C*).
 * **1989 – ANSI C (C89/C90)**: Formaliza el estándar del lenguaje, introduciendo prototipos de funciones (\`void main(void)\`), calificadores \`const\` y bibliotecas estándar unificadas.
-
-### Conexión Conceptual del Curso
-Este primer capítulo del **Curso C Pro** establece las bases operativas esenciales. Antes de dominar punteros avanzados, estructuras complejas, asignación dinámica de memoria (\`malloc\`/\`free\`) e interfaces UNIX, es indispensable dominar el flujo de compilación, el mapa de memoria y el comportamiento preciso de los tipos primitivos.
 
 ---
 
@@ -83,105 +79,41 @@ int main(void) {   // Punto de entrada obligatorio
 }
 \`\`\`
 
----
+### 2.2 Mapa de Memoria y Tipos de Datos Primitivos
+En C, el tamaño de cada tipo de dato depende de la arquitectura del compilador (16, 32 o 64 bits). 
 
-### 2.2 Tabla Completa de Tipos de Datos Primitivos, Tamaños y Rangos en C
-En C, el tamaño de cada tipo de dato depende de la arquitectura del compilador (16, 32 o 64 bits). A continuación se presenta la especificación estándar ANSI C / POSIX para sistemas x86_64 modernos:
-
-| Tipo de Dato | Tamaño (Bytes) | Tamaño (Bits) | Rango Mínimo | Rango Máximo | Especificador \`printf\` |
+| Tipo de Dato | Tamaño | Tamaño | Rango Mínimo | Rango Máximo | Especificador \`printf\` |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| \`signed char\` | $1$ | $8$ | $-128$ | $+127$ | \`%c\` / \`%d\` |
-| \`unsigned char\` | $1$ | $8$ | $0$ | $255$ | \`%u\` |
-| \`short int\` | $2$ | $16$ | $-32,768$ | $+32,767$ | \`%hd\` |
-| \`unsigned short\`| $2$ | $16$ | $0$ | $65,535$ | \`%hu\` |
-| \`int\` | $4$ | $32$ | $-2,147,483,648$ | $+2,147,483,647$ | \`%d\` / \`%i\` |
-| \`unsigned int\` | $4$ | $32$ | $0$ | $4,294,967,295$ | \`%u\` |
-| \`long long\` | $8$ | $64$ | $-9,223,372,036,854,775,808$ | $+9,223,372,036,854,775,807$ | \`%lld\` |
-| \`unsigned long long\`| $8$| $64$ | $0$ | $18,446,744,073,709,551,615$| \`%llu\` |
-| \`float\` | $4$ | $32$ | $\approx 1.17 \times 10^{-38}$ | $\approx 3.40 \times 10^{38}$ (6-7 dígitos pred) | \`%f\` / \`%g\` |
-| \`double\` | $8$ | $64$ | $\approx 2.22 \times 10^{-308}$ | $\approx 1.79 \times 10^{308}$ (15-17 dígitos pred)| \`%lf\` |
+| \`signed char\` | 1 Byte | 8 bits | -128 | +127 | \`%c\` / \`%d\` |
+| \`unsigned char\` | 1 Byte | 8 bits | 0 | 255 | \`%u\` |
+| \`short int\` | 2 Bytes | 16 bits | -32,768 | +32,767 | \`%hd\` |
+| \`int\` | 4 Bytes | 32 bits | -2,147,483,648 | +2,147,483,647 | \`%d\` / \`%i\` |
+| \`unsigned int\` | 4 Bytes | 32 bits | 0 | 4,294,967,295 | \`%u\` |
+| \`long long\` | 8 Bytes| 64 bits | -9,223,372,036,854,775,808 | +9,223,372,036,854,775,807 | \`%lld\` |
+
+#### Integer Overflow (Desbordamiento Entero)
+¿Qué ocurre si a un \`unsigned char\` (rango 0 a 255) cuyo valor actual es 255 se le suma 1?
+Dado que 255 en binario es \`11111111\`, sumar 1 produce \`100000000\`. Como el \`char\` solo tiene 8 bits, el noveno bit se trunca y el valor vuelve a **0**. Para variables con signo (signed), el desbordamiento produce **Comportamiento Indefinido (Undefined Behavior)** según el estándar C, aunque típicamente da la vuelta hacia los números negativos (Complemento a Dos).
+
+### 2.3 Modelo de I/O de Caracteres (\`getchar\` y \`putchar\`)
+C no posee un concepto incorporado de "strings" o texto avanzado nativo, a diferencia de lenguajes de alto nivel. Todo se procesa como un flujo secuencial (stream) de bytes.
+* \`getchar()\`: Lee exactamente el siguiente carácter (1 byte) disponible en el flujo de entrada estándar (\`stdin\`). Retorna un **entero** (\`int\`), no un \`char\`, para poder incluir el valor especial \`EOF\` (-1) cuando no hay más datos.
+* \`putchar(c)\`: Imprime el byte \`c\` en la salida estándar (\`stdout\`).
 
 ---
 
-### 2.3 El Fenómeno del Integer Overflow (Desbordamiento)
-¿Qué sucede cuando intentas incrementar una variable más allá de su rango máximo permitido?
-En hardware con representación binaria de **Complemento a Dos** (*Two's Complement*), los bits desbordan hacia el bit de signo, provocando el comportamiento conocido como **Wrap-Around**.
+## 3. MEJORES PRÁCTICAS Y PELIGROS COMUNES
 
-#### Ejemplo Concreto de Overflow en \`signed char\`:
-\`\`\`c
-#include <stdio.h>
-
-int main() {
-    signed char c = 127; // Valor máximo de 8 bits firmados
-    printf("Valor inicial: %d\\n", c); // Imprime 127
-    
-    c = c + 1; // OVERFLOW! 127 (01111111) + 1 = 10000000 en binario (-128)
-    printf("Tras +1: %d\\n", c);       // Imprime -128
-    return 0;
-}
-\`\`\`
-
----
-
-### 2.4 Errores Comunes de los Desarrolladores C
-1. **Atrapados en la División Entera**:
-   La expresión \`5 / 9\` evalúa a \`0\` porque ambos operando son enteros (\`int\`). Para forzar una división en coma flotante, al menos uno de los operandos debe incluir punto decimal: \`5.0 / 9.0\` o \`(double)5 / 9\`.
-2. **Confundir el Operador de Asignación \`=\` con el Operador de Igualdad \`==\`**:
+### ⚠️ Errores Típicos del Novato en C
+1. **Asignación en lugar de Comparación (\`=\` vs \`==\`)**:
    Un error devastador en C es escribir \`if (x = 5)\`. Esto no compara si \`x\` es igual a 5; asigna \`5\` a \`x\`, y dado que \`5\` es verdadero (no cero), la condición siempre se evalúa como verdadera.
-3. **No Manejar Correctamente la Señal \`EOF\`**:
+2. **Tipo de Retorno de \`getchar()\`**:
    La función \`getchar()\` no retorna un \`char\`, sino un \`int\`. Si almacenas el retorno de \`getchar()\` en un \`char\`, la comparación contra \`EOF\` (\`-1\`) fallará en arquitecturas donde \`char\` es por defecto sin signo (\`unsigned\`).
-4. **Cadenas de Texto Sin Carácter Nulo de Terminación \`\\0\`**:
+3. **Falta del carácter nulo en cadenas de texto**:
    Las funciones como \`printf("%s", str)\` leen memoria consecutivamente hasta encontrar un byte con valor \`0\`. Si creas un arreglo de caracteres sin \`'\\0'\`, \`printf\` leerá basura en RAM causando un desastre de segmentación (*Segmentation Fault*).
 
----
-
-## 3. ANÁLISIS DE RECURSOS Y RENDIMIENTO EN C
-
-### 3.1 Costo Computacional de Entrada/Salida
-* \`printf("%d\\n", x)\` realiza formateo de cadenas en tiempo de ejecución, parseando la cadena de formato carácter por carácter, lo cual requiere cientos de ciclos de CPU.
-* \`putchar(c)\` es una macro inmensamente más rápida optimizada para escribir un solo byte directamente en el búfer de salida de \`stdout\`.
-* **Regla de Oro en C**: Para procesadores embebidos o lectura masiva de archivos de gigabytes, procesa mediante búfers con \`fread\`/\`fwrite\` o \`getchar\`/\`putchar\` en lugar de \`scanf\`/\`printf\` iterativos.
-
----
-
-## 4. APLICACIONES EN EL MUNDO REAL
-
-1. **Kernel de Linux y Sistemas Operativos**:
-   Casi el 98% de los kernels de Linux, macOS, Windows, iOS y Android están escritos en C ANSI puro por su capacidad de manipular registros de hardware y direcciones físicas de memoria RAM.
-2. **Bases de Datos de Alto Rendimiento (SQLite y PostgreSQL)**:
-   SQLite, la base de datos más utilizada en teléfonos inteligentes y navegadores del mundo, está escrita completamente en C estándar K&R/ANSI C.
-3. **Motores de Juegos y Renderizado 3D**:
-   Sistemas de bajo nivel como Unreal Engine Core, Vulkan API, OpenGL y bibliotecas como \`SDL2\` utilizan C/C++ para garantizar latencias de renderizado inferiores a 16 milisegundos (60+ FPS).
-
----
-
-## 5. NOTAS DE IMPLEMENTACIÓN EN C
-
-### Gotchas y Buffer Flushes
-El búfer de \`stdout\` es gestionado por la biblioteca estándar \`stdio.h\`. Por defecto es **orientado a líneas** (*line-buffered*). Esto significa que \`printf("Hola")\` no enviará el texto a la terminal hasta que se imprima un salto de línea \`\\n\` o se llame explícitamente a \`fflush(stdout);\`.
-
----
-
-## 6. GLOSARIO DE TÉRMINOS DEL CAPÍTULO
-
-* **Preprocesador**: Fase inicial del compilador que resuelve directivas \`#include\` y sustituye macros \`#define\`.
-* **Standard I/O (\`stdio.h\`)**: Biblioteca estándar de C encargada del manejo de flujos de entrada/salida (\`stdin\`, \`stdout\`, \`stderr\`).
-* **EOF (End-Of-File)**: Constante entera negativa (usualmente \`-1\`) devuelta por \`getchar()\` al agotar el flujo de entrada.
-* **Complemento a Dos**: Formato estándar de hardware binario para representar números enteros negativos mediante la inversión de bits más uno.
-* **Carácter Nulo (\`\\0\`)**: Byte de valor cero (ASCII 0) utilizado como centinela para indicar el final de una cadena de caracteres en memoria RAM.
-
----
-
-## 7. MATERIALES DE APOYO Y REFERENCIAS
-
-* **Para Profundizar en el Libro K&R**:
-  * **Kernighan & Ritchie**: Capítulo 1 completo (*A Tutorial Introduction*), Secciones 1.1 a 1.10 (págs. 5–38).
-* **Guía de Uso de la Animación Interactiva del Capítulo**:
-  * Utiliza la **Animación 2.1 (Mapa de Memoria)** para observar cómo se alinean los arreglos contiguos en RAM y el efecto del byte nulo \`\\0\`.
-  * Utiliza la **Animación 2.2 (Simulador de I/O stdin/stdout)** para seguir cómo \`getchar()\` toma bytes de la cinta transportadora hasta detectar \`EOF\`.
-* **Resumen en Una Frase**:
-  > *"En C no existe magia ni capas ocultas: cada variable es un bloque físico de memoria RAM y cada instrucción se ejecuta directamente sobre el hardware nativo."*
-`,
+## 4. TAREAS Y EJERCICIOS
+Sigue las simulaciones interactivas y prueba compilar los ejemplos en la zona de ejercicios.`,
     codeExamples: [
       {
         title: '1. Tabla de Temperatura Fahrenheit - Celsius',
@@ -499,73 +431,86 @@ int main() {
         whyItWorks: 'Hace tangible las operaciones lógicas a nivel de hardware y máscaras de bits.'
       }
     ],
-    theoryContent: `### 2.1 Tipos y Tamaños de Datos
-C proporciona cuatro tipos primitivos fundamentales alineados con los tamaños nativos del procesador:
-
-* **\`char\`**: Almacena un solo byte (8 bits). Utilizado para caracteres ASCII o enteros pequeños.
-* **\`int\`**: Entero de tamaño natural de la máquina (generalmente 32 bits / 4 bytes).
-* **\`float\`**: Punto flotante de precisión simple (4 bytes IEEE 754).
-* **\`double\`**: Punto flotante de doble precisión (8 bytes).
-
-#### Calificadores de Tamaño y Signo:
-* **\`short int\`** (2 bytes) y **\`long int\`** (8 bytes).
-* **\`unsigned\`**: Elimina el bit de signo, duplicando el valor máximo positivo (ej. \`unsigned char\` va de 0 a 255).
-* **\`const\`**: Declara variables de solo lectura cuyos valores no pueden modificarse tras su inicialización.
-
-\`\`\`c
-#include <stdio.h>
-
-int main() {
-    printf("sizeof(char):   %lu byte\\n", sizeof(char));
-    printf("sizeof(short):  %lu bytes\\n", sizeof(short));
-    printf("sizeof(int):    %lu bytes\\n", sizeof(int));
-    printf("sizeof(long):   %lu bytes\\n", sizeof(long));
-    printf("sizeof(double): %lu bytes\\n", sizeof(double));
-    return 0;
-}
-\`\`\`
+    theoryContent: `# Capítulo 2: Tipos, Operadores y Expresiones
 
 ---
 
-### 2.2 Operadores Lógicos y Evaluación en Cortocircuito
-Los operadores relacionales (\`<\`, \`<=\`, \`>\`, \`>=\`, \`==\`, \`!=\`) y lógicos (\`&&\`, \`||\`, \`!\`) devuelven \`1\` para verdadero y \`0\` para falso.
+## 1. INTRODUCCIÓN A LOS DATOS EN C
 
-#### Evaluación en Cortocircuito (*Short-Circuit Evaluation*):
+C proporciona un conjunto básico pero potente de tipos de datos. La filosofía subyacente es que los tipos y sus operaciones correspondan directamente con las capacidades nativas de las instrucciones del procesador. 
+
+A diferencia de lenguajes dinámicos donde "una variable puede contener cualquier cosa", en C, **una variable es simplemente un nombre asociado a una dirección de memoria y un tamaño de byte específico**.
+
+---
+
+## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+
+### 2.1 Tipos y Tamaños de Datos
+Los tipos de datos básicos definen cuántos bytes en RAM ocupará una variable y cómo se interpretarán los bits en esa memoria.
+
+* \`char\`: Un solo byte, capaz de contener un carácter local del conjunto de caracteres.
+* \`int\`: Un número entero, reflejando normalmente el tamaño natural de los enteros en la máquina host.
+* \`float\`: Punto flotante de precisión simple.
+* \`double\`: Punto flotante de precisión doble.
+
+#### Los Calificadores \`short\` y \`long\`
+A los enteros se les pueden aplicar calificadores para variar su tamaño:
+\`\`\`c
+short int sh; // Al menos 16 bits
+long int counter; // Al menos 32 bits
+\`\`\`
+
+#### Los Calificadores \`signed\` y \`unsigned\`
+El calificador \`unsigned\` altera la interpretación del bit más significativo, permitiendo que un byte abarque de 0 a 255 en lugar de -128 a 127.
+
+### 2.2 Constantes en C
+Existen diferentes formas de definir constantes literales.
+* **Enteras**: \`1234\` (int), \`123456789L\` (long), \`123U\` (unsigned).
+* **Octales y Hexadecimales**: \`037\` (octal, empieza con 0), \`0x1F\` (hexadecimal, empieza con 0x).
+* **Constantes de Caracteres**: \`'x'\` es una constante entera cuyo valor es el valor numérico del carácter en el conjunto de caracteres de la máquina (ej: 120 en ASCII).
+* **Secuencias de Escape**: \`\\n\` (nueva línea), \`\\t\` (tabulación), \`\\0\` (carácter nulo, de valor cero).
+
+### 2.3 Operadores Aritméticos, Relacionales y Lógicos
+
+#### Aritméticos
+Los básicos: \`+\`, \`-\`, \`*\`, \`/\`, \`%\`.
+**Atención**: El operador \`%\` no puede aplicarse a \`float\` o \`double\`. La división de enteros trunca cualquier parte fraccionaria (ej: \`5 / 2\` es \`2\`).
+
+#### Relacionales y Lógicos
+Los operadores relacionales (\`<\`, \`<=\`, \`>\`, \`>=\`, \`==\`, \`!=\`) y lógicos (\`&&\`, \`||\`, \`!\`) devuelven \`1\` para verdadero y \`0\` para falso.
+**Evaluación de Cortocircuito (Short-Circuit):**
 En \`exp1 && exp2\`, si \`exp1\` es falsa (\`0\`), C no evalúa \`exp2\` porque el resultado final es necesariamente falso.
 En \`exp1 || exp2\`, si \`exp1\` es verdadera (\`1\`), \`exp2\` no se evalúa.
 
+### 2.4 Operadores a Nivel de Bits (Bitwise)
+C ofrece 6 operadores para la manipulación de bits; estos solo pueden aplicarse a operandos integrales:
+| Operador | Nombre | Operación | Ejemplo (\`a = 0x05\`, \`b = 0x09\`) |
+| :--- | :--- | :--- | :--- |
+| \`&\` | AND a nivel de bits | Bits 1 si ambos son 1 | \`a & b\` es \`0x01\` |
+| \`|\` | OR a nivel de bits | Bits 1 si alguno es 1 | \`a | b\` es \`0x0D\` |
+| \`^\` | XOR a nivel de bits | Bits 1 si son diferentes | \`a ^ b\` es \`0x0C\` |
+| \`<<\` | Desplazamiento Izquierda | Desplaza bits a la izq. (multiplica por 2) | \`a << 1\` es \`0x0A\` |
+| \`>>\` | Desplazamiento Derecha | Desplaza bits a la der. (divide por 2) | \`a >> 1\` es \`0x02\` |
+| \`~\` | Complemento a Uno | Invierte todos los bits | \`~a\` (varía según bits) |
+
+### 2.5 Expresiones Condicionales (Operador Ternario)
+Es la única expresión en C que requiere tres operandos.
 \`\`\`c
-int ptr != NULL && *ptr == 42; // Seguro: no desreferencia ptr si es NULL
+z = (a > b) ? a : b; /* z recibe el máximo entre a y b */
 \`\`\`
 
 ---
 
-### 2.3 Operadores Bit a Bit (Bitwise Operators)
-Permiten manipular bits individuales en tipos enteros:
-
-| Operador | Nombre | Operación | Ejemplo (\`a = 0x05\`, \`b = 0x09\`) |
-| :---: | :--- | :--- | :--- |
-| \`&\` | **AND Bitwise** | \`1\` si ambos bits son \`1\`. Máscaras de lectura. | \`0x05 & 0x09 = 0x01\` |
-| \`|\` | **OR Bitwise** | \`1\` si al menos un bit es \`1\`. Encender bits. | \`0x05 | 0x09 = 0x0D\` |
-| \`^\` | **XOR Bitwise** | \`1\` si los bits son distintos. Alternar bits. | \`0x05 ^ 0x09 = 0x0C\` |
-| \`~\` | **NOT Bitwise** | Invierte todos los bits (complemento a 1). | \`~0x05 = 0xFA\` |
-| \`<<\` | **Shift Left** | Desplaza bits a la izquierda (multiplica por $2^n$). | \`0x05 << 2 = 0x14\` (20) |
-| \`>>\` | **Shift Right** | Desplaza bits a la derecha (divide entre $2^n$). | \`0x05 >> 1 = 0x02\` (2) |
-
+## 3. CONVERSIONES DE TIPO (TYPE CASTING)
+Cuando un operador tiene operandos de distintos tipos, se convierten a un tipo común. En general, el tipo menor se "promociona" al mayor.
+Por ejemplo, \`f + i\` (donde \`f\` es float, \`i\` es int), el \`int\` se promociona a \`float\` antes de la suma.
+Puede forzarse una conversión explícita (*cast*):
 \`\`\`c
-#include <stdio.h>
+sqrt((double) n);
+\`\`\`
 
-int main() {
-    unsigned char a = 0x05; // 0000 0101 (5)
-    unsigned char b = 0x09; // 0000 1001 (9)
-
-    printf("a & b  = 0x%02X (%d)\\n", a & b, a & b);   // 0000 0001 (1)
-    printf("a | b  = 0x%02X (%d)\\n", a | b, a | b);   // 0000 1101 (13)
-    printf("a ^ b  = 0x%02X (%d)\\n", a ^ b, a ^ b);   // 0000 1100 (12)
-    printf("a << 2 = 0x%02X (%d)\\n", a << 2, a << 2); // 0001 0100 (20)
-    return 0;
-}
-\`\`\``,
+## 4. PRECEDENCIA Y ORDEN DE EVALUACIÓN
+La precedencia dicta qué operadores se agrupan antes. Los unarios tienen mayor precedencia. La recomendación es **siempre usar paréntesis** para asegurar la legibilidad y evitar comportamientos indeseados.`,
     codeExamples: [
       {
         title: '1. Manipulación de Bits y Máscaras de Configuración',
@@ -671,48 +616,101 @@ int main() {
         whyItWorks: 'Visualiza el comportamiento de salto directo del switch y la necesidad del break.'
       }
     ],
-    theoryContent: `### 3.1 Estructuras Condicionales y Bloques
-Un bloque en C se delimita con llaves \`{\` y \`}\`. Las variables declaradas dentro de un bloque tienen alcance local a ese bloque.
-
-#### La Sentencia Switch-Case:
-Evalúa una expresión entera y salta directamente a la etiqueta \`case\` correspondiente.
-
-\`\`\`c
-#include <stdio.h>
-
-int main() {
-    char opcion = 'B';
-    switch (opcion) {
-        case 'A':
-            printf("Procesando Módulo Algorítmico\\n");
-            break;
-        case 'B':
-            printf("Procesando Módulo Lenguaje C\\n");
-            break;
-        default:
-            printf("Opción desconocida\\n");
-            break;
-    }
-    return 0;
-}
-\`\`\`
+    theoryContent: `# Capítulo 3: Control de Flujo
 
 ---
 
-### 3.2 Ciclo Do-While (Prueba Posterior)
-A diferencia de \`while\` y \`for\`, el ciclo \`do-while\` evalúa su condición al **final** del bloque, garantizando que el cuerpo se ejecute al menos una vez.
+## 1. INTRODUCCIÓN
+
+Las sentencias de control de flujo en un lenguaje especifican el orden en el que se realizan los cálculos. Ya hemos introducido las estructuras condicionales básicas; en este capítulo profundizaremos en todas las herramientas que C proporciona para ramificar y ciclar el flujo de ejecución, comprendiendo su bajo nivel.
+
+---
+
+## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+
+### 2.1 Estructuras Condicionales y Bloques
+
+#### Declaraciones y Bloques
+Una expresión, como \`x = 0\`, se convierte en una *declaración* o *sentencia* cuando es seguida por un punto y coma \`;\`.
+Las llaves \`{\` y \`}\` se emplean para agrupar declaraciones en un *bloque*, logrando que sean sintácticamente equivalentes a una única declaración.
+
+#### If-Else
+\`\`\`c
+if (expresion)
+    declaracion1;
+else
+    declaracion2;
+\`\`\`
+Dado que un \`if\` evalúa el valor numérico de la expresión (0 es falso, no-0 es verdadero), es común escribir \`if (expresion)\` en vez de \`if (expresion != 0)\`.
+**Peligro del "Dangling Else"**: Un \`else\` siempre se asocia con el \`if\` más cercano y sin cerrar. Se recomienda fuertemente usar siempre llaves \`{}\` para evitar ambigüedades lógicas.
+
+#### Else-If
+\`\`\`c
+if (condicion1)
+    ...
+else if (condicion2)
+    ...
+else
+    ...
+\`\`\`
+Esta construcción es la forma más general de escribir una decisión múltiple. Las expresiones se evalúan en orden; si alguna es verdadera, se ejecuta el bloque asociado y termina toda la cadena.
+
+### 2.2 Sentencia Switch
+El \`switch\` evalúa una expresión entera (y solo entera) para realizar un salto de control (jump) directo hacia un bloque o caso constante.
 
 \`\`\`c
-#include <stdio.h>
-
-int main() {
-    int n = 10;
-    do {
-        printf("Ejecución garantizada al menos 1 vez (n = %d)\\n", n);
-    } while (n < 5);
-    return 0;
+switch (opcion) {
+    case 1:
+        printf("Opción 1\\n");
+        break;
+    case 2:
+        printf("Opción 2\\n");
+        break;
+    default:
+        printf("Inválido\\n");
+        break; /* Por convención, terminar default con break */
 }
-\`\`\``,
+\`\`\`
+**Fall-through (Caída en cascada):** A diferencia de muchos lenguajes modernos, si un bloque \`case\` no incluye un \`break\`, la ejecución **continúa cayendo** (fall-through) hacia el siguiente \`case\`, independientemente de si su valor coincide. Esto puede ser útil, pero suele ser fuente de graves errores de programación.
+
+### 2.3 Bucles: While, For, Do-While
+
+#### While
+\`\`\`c
+while (condicion) {
+    ...
+}
+\`\`\`
+La expresión se evalúa. Si es no-cero (verdadero), se ejecuta el bloque y se vuelve a evaluar la expresión.
+
+#### For
+\`\`\`c
+for (inicializacion; condicion; incremento) {
+    ...
+}
+\`\`\`
+Es equivalente a:
+\`\`\`c
+inicializacion;
+while (condicion) {
+    ...
+    incremento;
+}
+\`\`\`
+Cualquiera de las 3 partes (o todas) puede omitirse. Si omites la condición, se considera permanentemente cierta (ciclo infinito).
+
+#### Do-While
+A diferencia de \`while\` y \`for\`, el ciclo \`do-while\` evalúa su condición al **final** del bloque, garantizando que el cuerpo se ejecute al menos una vez.
+\`\`\`c
+do {
+    ...
+} while (condicion);
+\`\`\`
+
+### 2.4 Sentencias Break, Continue y Goto
+* \`break\`: Provoca la salida inmediata del ciclo o \`switch\` más interno que lo encierra.
+* \`continue\`: Fuerza a que comience la próxima iteración del ciclo envolvente (\`while\`, \`for\`, \`do\`).
+* \`goto\`: C proporciona la sentencia incondicional \`goto label;\`. Aunque fue la principal herramienta de control antes de la programación estructurada, su uso en C está fuertemente desaconsejado ("código espagueti") a menos que se trate de salir limpiamente de ciclos muy anidados en gestiones de errores, patrón usado ampliamente en el Kernel de Linux.`,
     codeExamples: [
       {
         title: '1. Algoritmo de Búsqueda Binaria con Bucle While',
@@ -828,46 +826,62 @@ int main() {
         whyItWorks: 'Aclara cómo static conserva su valor en la RAM entre sucesivas llamadas a la función.'
       }
     ],
-    theoryContent: `### 4.1 Variables Estáticas y Ámbito
-* **\`static\` local**: Preserva su estado en la memoria RAM durante toda la vida del programa, sin reinicializarse en cada llamada.
-* **\`static\` global**: Oculta la variable o función restringiendo su alcance únicamente al archivo \`.c\` actual (privacidad de módulo).
-
-\`\`\`c
-#include <stdio.h>
-
-void contador() {
-    static int invocaciones = 0; // Se inicializa solo una vez
-    invocaciones++;
-    printf("Invocación número: %d\\n", invocaciones);
-}
-
-int main() {
-    contador();
-    contador();
-    contador();
-    return 0;
-}
-\`\`\`
+    theoryContent: `# Capítulo 4: Funciones y la Estructura del Programa
 
 ---
 
-### 4.2 El Preprocesador de C (#define, #include, #ifdef)
-El preprocesador procesa el texto fuente antes de enviarlo al compilador:
+## 1. INTRODUCCIÓN Y MOTIVACIÓN
 
-* **Macros con Parámetros**:
+Las funciones dividen grandes tareas de computación en piezas menores, y permiten que las personas aprovechen lo que otras ya han creado, en lugar de empezar desde cero. 
+Las funciones de C no pueden anidarse dentro de otras funciones, lo que simplifica la pila de llamadas y la visibilidad. Este capítulo trata sobre la organización del código, su partición modular en múltiples archivos y el tiempo de vida (scope) de la memoria en la que operan.
+
+---
+
+## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+
+### 2.1 Conceptos Básicos de Funciones
+La definición de una función clásica tiene esta forma:
 \`\`\`c
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-#define CUADRADO(x) ((x) * (x))
+tipo_retorno nombre_funcion(tipo_arg1 arg1, tipo_arg2 arg2) {
+    // Declaraciones
+    // Sentencias
+    return expresion; // Opcional si tipo_retorno es void
+}
 \`\`\`
-* **Guarda de Inclusión en Cabeceras**:
+
+**El paso de argumentos en C es estricto**: siempre se hace **Por Valor (Pass-By-Value)**. Es decir, C entrega una copia íntegra de la variable al interior de la función; no entrega un puntero ni una referencia salvo que se exprese de forma explícita utilizando punteros (los cuales trataremos en profundidad en el próximo capítulo).
+
+### 2.2 Variables Externas (Globales) vs Locales
+Un programa C consiste en un conjunto de objetos externos, los cuales son variables o funciones.
+* **Locales (Automáticas):** Variables definidas *dentro* de una función. Nacen cuando se llama la función, se almacenan en el "Stack" (Pila), y mueren y se destruyen al hacer return. Su valor inicial es "basura" (indeterminado) a menos que se asigne explícitamente.
+* **Externas (Globales):** Variables definidas *fuera* de cualquier función. Viven en el segmento "Data" o "BSS" de la RAM durante toda la vida del programa. Pueden ser accedidas por cualquier función que declare su existencia usando la palabra clave \`extern\`. 
+
+### 2.3 Variables Estáticas (\`static\`) y Ámbito (Scope)
+La palabra clave \`static\` tiene dos significados totalmente distintos dependiendo de dónde se use:
+1. **En Variables Locales**: Una variable \`static\` dentro de una función NO se destruye al acabar la función. Conserva su valor entre sucesivas llamadas. Se inicializa solo una vez (y a 0 si no se dice nada).
+2. **En Variables Externas/Funciones**: El calificador \`static\` restringe la "visibilidad" (scope) del elemento. Solo será visible dentro de ese mismo archivo \`.c\`, evitando colisiones de nombres con otras librerías enlazadas (un pseudo-encapsulamiento).
+
+### 2.4 Registros (\`register\`)
+Declarar \`register int x;\` aconseja al compilador mantener esa variable en los veloces registros internos de la CPU en lugar de la RAM. Sin embargo, los compiladores modernos suelen ignorar esta recomendación porque sus algoritmos de optimización hacen un mejor trabajo de manera autónoma.
+
+### 2.5 Prototipos y Archivos de Cabecera (\`.h\`)
+En un proyecto grande, agrupar las definiciones y funciones en diferentes archivos \`.c\` requiere archivos \`.h\` (headers).
+Un prototipo informa al compilador del tipo de retorno y tipos de los parámetros antes de que vea la implementación real de la función, evitando que asuma incorrectamente (en K&R antiguo, asumía retorno \`int\` por defecto, lo cual era peligroso).
+
 \`\`\`c
-#ifndef MI_LIBRERIA_H
-#define MI_LIBRERIA_H
-
-// Declaraciones y prototipos de la librería
-
+// matematicas.h
+#ifndef MATEMATICAS_H
+#define MATEMATICAS_H
+double calcularRaiz(double numero); // Prototipo
 #endif
-\`\`\``,
+\`\`\`
+Los "Include Guards" (\`#ifndef ... #define ...\`) previenen que el archivo de cabecera se lea doblemente en un mismo flujo de compilación.
+
+### 2.6 El Preprocesador C y las Macros
+El preprocesador es un primer paso aislado en la compilación. Reemplaza texto mediante expansión.
+* Sustitución Simple: \`#define MAXLINE 100\`
+* Macros con Argumentos: \`#define MAX(A, B) ((A) > (B) ? (A) : (B))\`
+**Cuidado**: Un macro no es una función, es un reemplazo de texto crudo. \`MAX(i++, j++)\` incrementará la variable dos veces debido a su expansión sintáctica.`,
     codeExamples: [
       {
         title: '1. Torres de Hanói Recursivas',
@@ -990,73 +1004,85 @@ int main() {
         whyItWorks: 'Explica por qué p + 1 incrementa la dirección en el número de bytes del tipo apuntado.'
       }
     ],
-    theoryContent: `### 5.1 Conceptos Fundamentales de Punteros
-Un **puntero** es una variable cuyo valor es la **dirección de memoria RAM** de otra variable.
-
-* **\`&\` (Address-of)**: Obtiene la dirección de memoria de una variable.
-* **\`*\` (Dereference)**: Accede al valor almacenado en la dirección apuntada.
-
-\`\`\`c
-#include <stdio.h>
-
-void intercambiar(int *a, int *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-int main() {
-    int x = 10, y = 20;
-    printf("Antes: x = %d, y = %d\\n", x, y);
-    intercambiar(&x, &y); // Pasamos las direcciones con &
-    printf("Después: x = %d, y = %d\\n", x, y);
-    return 0;
-}
-\`\`\`
+    theoryContent: `# Capítulo 5: Punteros y Arreglos
 
 ---
 
-### 5.2 Equivalencia entre Punteros y Arreglos
-En C, el nombre de un arreglo se decae automáticamente en un puntero a su primer elemento:
-\`\`\`c
-arr[i]  <===>  *(arr + i)
-\`\`\`
+## 1. INTRODUCCIÓN Y MOTIVACIÓN
 
-\`\`\`c
-#include <stdio.h>
+Llegamos a la característica más icónica y definitoria de C: **Los Punteros**. Un puntero es, fundamentalmente, una variable que contiene la dirección de ubicación en memoria RAM de otra variable.
 
-int main() {
-    int numeros[] = {10, 20, 30, 40, 50};
-    int *p = numeros; // Apunta al primer elemento (numeros[0])
-
-    for (int i = 0; i < 5; i++) {
-        printf("*(p + %d) = %d (Dir: %p)\\n", i, *(p + i), (void*)(p + i));
-    }
-    return 0;
-}
-\`\`\`
+Lejos de ser "inseguros" per se, los punteros representan la arquitectura real de una computadora. Son la razón principal por la que los lenguajes dinámicos escriben sus motores subyacentes en C. Entender los punteros y su relación estrecha con los arreglos es entender cómo respira realmente un microprocesador.
 
 ---
 
-### 5.3 Punteros a Funciones
-Permiten pasar código executable como argumentos a otras funciones (mecanismo de *callbacks*):
+## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+
+### 2.1 Conceptos Fundamentales de Punteros
+Todo byte en la RAM de tu computadora tiene una dirección numérica. Una variable almacena un valor en una de estas direcciones.
+
+* El **operador Unario \`&\` (dirección-de)** da la dirección en memoria de un objeto.
+  \`\`\`c
+  p = &c; // p ahora "apunta a" c. p guarda la dirección numérica de c.
+  \`\`\`
+* El **operador Unario \`*\` (indirección o desreferencia)** accede al valor que se encuentra en la dirección apuntada.
+  \`\`\`c
+  int y = *p; // Sigue la dirección de p, toma su valor, guárdalo en y.
+  *p = 10;    // Sigue la dirección de p y escribe el número 10 allí.
+  \`\`\`
+
+#### Declaración de Punteros
+\`\`\`c
+int x = 1, y = 2, z[10];
+int *ip; // ip es un "puntero a int".
+ip = &x; // ip ahora apunta a x.
+y = *ip; // y ahora es 1.
+*ip = 0; // x ahora es 0.
+\`\`\`
+El puntero \`ip\` tiene un tamaño fijo (por ejemplo, 8 bytes en arquitectura de 64 bits) sin importar a qué tipo apunta. El compilador necesita saber el tipo subyacente (\`int\`, \`char\`, \`double\`) para saber *cuántos bytes leer* a partir de esa dirección de memoria.
+
+### 2.2 Punteros y Argumentos de Funciones
+Dado que C usa "Pasaje por Valor", una función no puede alterar una variable externa nativamente. Para lograrlo, el llamador debe pasar explícitamente un puntero (la dirección) a la variable.
 
 \`\`\`c
-#include <stdio.h>
-
-int sumar(int a, int b) { return a + b; }
-int restar(int a, int b) { return a - b; }
-
-void ejecutarOperacion(int (*op)(int, int), int x, int y) {
-    printf("Resultado de la operación: %d\\n", op(x, y));
+void swap(int *px, int *py) {
+    int temp = *px;
+    *px = *py;
+    *py = temp;
 }
+// Llamada en main: swap(&a, &b);
+\`\`\`
+Esto es el pilar de cómo funciones como \`scanf("%d", &variable)\` logran modificar la variable original.
 
-int main() {
-    ejecutarOperacion(sumar, 15, 5);
-    ejecutarOperacion(restar, 15, 5);
-    return 0;
-}
-\`\`\``,
+### 2.3 Punteros y Arreglos: La Dualidad de K&R
+En C, existe una equivalencia fuerte entre punteros y arreglos, a tal grado que las operaciones con arreglos se evalúan internamente como aritmética de punteros.
+
+\`\`\`c
+int a[10];
+int *pa;
+pa = &a[0]; // O también: pa = a;
+\`\`\`
+La expresión \`a[i]\` es idéntica por definición del estándar C a evaluar \`*(a + i)\`. El nombre del arreglo \`a\` es, esencialmente, una constante que apunta a la dirección de memoria de su primer elemento.
+
+#### Aritmética de Punteros
+Si \`p\` apunta a un entero, \`p + 1\` apunta al **siguiente entero en la memoria**, no simplemente a la siguiente dirección de byte de hardware (suma el tamaño de \`int\`, \`sizeof(int)\`). Esta aritmética (suma, resta y comparación) escala matemáticamente respecto del tipo de dato al que apuntan.
+
+### 2.4 Cadenas de Caracteres (Strings) y Punteros
+Las cadenas de texto en C son arreglos unidimensionales del tipo \`char\`, terminados por un carácter nulo \`'\\0'\`.
+\`\`\`c
+char *pmensaje = "Hola mundo";
+char amensaje[] = "Hola mundo";
+\`\`\`
+* \`pmensaje\` es un puntero. Su memoria almacena la dirección donde yace "Hola mundo" (generalmente en la sección inmutable *Read-Only Data* del binario). Modificar la cadena lanzará un *Segmentation Fault*.
+* \`amensaje\` es un arreglo local en el stack. Inicializa la RAM con esos caracteres. Es perfectamente modificable.
+
+### 2.5 Arreglos de Punteros y Punteros a Funciones
+Dado que los punteros en sí son variables, estos pueden almacenarse en arreglos, o incluso apuntar a instrucciones ejecutables de código.
+\`\`\`c
+int (*comp)(void *, void *); // Puntero a función
+char *lineptr[5000]; // Arreglo de 5000 punteros a cadena
+\`\`\`
+El operador de puntero a función permite el envío de comportamientos como argumentos, cimentando rutinas altamente escalables como la famosa función \`qsort\` estándar.`,
     codeExamples: [
       {
         title: '1. Ordenamiento Quicksort con Puntero a Función de Comparación',
@@ -1164,61 +1190,98 @@ int main() {
         whyItWorks: 'Demuestra la diferencia fundamental entre colecciones homogéneas (arreglos) y compuestas (structs).'
       }
     ],
-    theoryContent: `### 6.1 Estructuras y Acceso a Miembros
-Una **estructura** es una colección de una o más variables agrupadas bajo un solo nombre.
-
-\`\`\`c
-#include <stdio.h>
-
-struct Punto {
-    int x;
-    int y;
-};
-
-int main() {
-    struct Punto p1 = {10, 20};
-    struct Punto *ptr = &p1;
-
-    // Acceso con operador punto y flecha
-    printf("Punto directo: (%d, %d)\\n", p1.x, p1.y);
-    printf("Punto vía flecha: (%d, %d)\\n", ptr->x, ptr->y);
-
-    return 0;
-}
-\`\`\`
+    theoryContent: `# Capítulo 6: Estructuras (Structs, Uniones y Enum)
 
 ---
 
-### 6.2 Nodos Autorreferenciados para Listas y Árboles
-Un struct que contiene un puntero a su propio tipo permite construir estructuras dinámicas:
+## 1. INTRODUCCIÓN A LAS ESTRUCTURAS DE DATOS DE USUARIO
+
+Hasta ahora, los programas que hemos escrito procesan componentes de datos individuales. A medida que un programa se vuelve más grande, necesita una manera más robusta de agrupar variables relacionadas bajo un mismo techo organizativo.
+
+Una **estructura** (\`struct\`) es una colección de una o más variables, posiblemente de diferentes tipos de datos, agrupadas bajo un solo nombre para su fácil manipulación. Son la base de las estructuras de datos clásicas (listas enlazadas, árboles, grafos) y de la programación orientada a objetos (C++, que nació originalmente como "C con Clases", usando structs).
+
+---
+
+## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+
+### 2.1 Estructuras y Acceso a Miembros
+Para declarar un punto cartesiano \$x, y\$:
+\`\`\`c
+struct punto {
+    int x;
+    int y;
+};
+\`\`\`
+La palabra \`punto\` es una "etiqueta" (tag) de estructura opcional. Las variables internas se denominan "miembros" (members). Declararlo de esta forma solo define una *plantilla* o un nuevo *tipo*; no se ha reservado ninguna memoria RAM real.
+
+Para instanciarla y utilizarla:
+\`\`\`c
+struct punto pt;
+pt.x = 10;
+pt.y = 20;
+printf("%d, %d", pt.x, pt.y);
+\`\`\`
+El operador \`.\` (punto) conecta el nombre de la variable estructura con el nombre de uno de sus miembros.
+
+### 2.2 Punteros a Estructuras y el Operador Flecha \`->\`
+Las estructuras completas se pueden copiar con una simple asignación (\`pt1 = pt2\`), pueden ser pasadas a funciones y pueden ser devueltas. Sin embargo, pasar grandes estructuras "por valor" consume demasiada memoria y ciclos de CPU al tener que copiar bloque a bloque. Es un estándar absoluto pasar estructuras a través de **punteros**.
+
+Si \`pp\` es un puntero a una estructura \`punto\`:
+\`\`\`c
+struct punto *pp = &pt;
+// Para acceder a un miembro:
+(*pp).x = 15;
+// En K&R C, esto tiene una abreviatura indispensable y universal:
+pp->x = 15;
+\`\`\`
+El operador flecha \`->\` es una de las notaciones más famosas de C, combinando la indirección del puntero y el acceso al miembro.
+
+### 2.3 Estructuras Autorreferenciadas (Nodos)
+Las estructuras pueden contener punteros hacia instancias del *mismo tipo* de estructura. Esto habilita las listas enlazadas y los árboles binarios.
 
 \`\`\`c
-#include <stdio.h>
-#include <stdlib.h>
+struct tnode {
+    char *word;             // La palabra almacenada
+    int count;              // Veces que aparece
+    struct tnode *left;     // Hijo izquierdo
+    struct tnode *right;    // Hijo derecho
+};
+\`\`\`
+Es ilegal que una estructura contenga una instancia completa de sí misma, pero sí puede albergar un **puntero** de 8 bytes hacia otra estructura idéntica.
 
-typedef struct Nodo {
-    int dato;
-    struct Nodo *siguiente;
-} Nodo;
+### 2.4 La Instrucción Typedef
+C provee un mecanismo sintáctico para crear alias (sinónimos) de tipos de datos llamado \`typedef\`. Sirve para reducir lo aparatoso del código.
 
-Nodo* crearNodo(int val) {
-    Nodo *nuevo = (Nodo*) malloc(sizeof(Nodo));
-    nuevo->dato = val;
-    nuevo->siguiente = NULL;
-    return nuevo;
-}
+\`\`\`c
+typedef struct tnode *Treeptr;
+// Ahora "Treeptr" es un nombre nativo de tipo, sustituyendo "struct tnode *"
+typedef struct {
+    int x, y;
+} Point;
+// Ahora "Point" es el nuevo nombre.
+\`\`\`
+Un \`typedef\` **no** crea tipos en tiempo de ejecución; es meramente evaluado por el compilador para verificar tipeo y ahorrar escrituras redundantes.
 
-int main() {
-    Nodo *cabeza = crearNodo(100);
-    cabeza->siguiente = crearNodo(200);
+### 2.5 Alineación de Memoria y Padding (*Struct Packing*)
+Un hecho de hardware crítico al programar en C es la Alineación. El tamaño físico de un \`struct\` rara vez es la suma exacta de sus miembros de datos. 
+\`\`\`c
+struct Mixto {
+    char a; // 1 byte
+    int b;  // 4 bytes
+};
+\`\`\`
+Por eficiencia, la CPU lee palabras de 4 u 8 bytes a la vez. El compilador inserta bytes "vacíos" (Padding) entre \`a\` y \`b\` para alinear \`b\` a una dirección divisible por 4. Así, \`sizeof(struct Mixto)\` será usualmente 8 bytes, no 5. Entender el *Padding* es fundamental para sistemas de red o embebidos y es la razón principal de por qué el orden de declaración en una struct importa.
 
-    printf("Nodo 1: %d -> Nodo 2: %d\\n", cabeza->dato, cabeza->siguiente->dato);
-
-    free(cabeza->siguiente);
-    free(cabeza);
-    return 0;
-}
-\`\`\``,
+### 2.6 Uniones (Unions)
+Una unión es una variable que puede almacenar objetos de distintos tipos y tamaños (uno a la vez) en la **misma área exacta de memoria RAM**.
+\`\`\`c
+union Data {
+    int i;
+    float f;
+    char str[20];
+};
+\`\`\`
+En este caso, \`sizeof(union Data)\` será igual a 20 (el tamaño del elemento más grande). El programador tiene la responsabilidad total de recordar qué tipo fue almacenado allí por última vez. Extraer el campo como \`int\` si fue almacenado como \`float\` resultará en una lectura basura de los bits en crudo.`,
     codeExamples: [
       {
         title: '1. Tabla Hash con Listas Enlazadas de Structs (K&R Sec 6.6)',
@@ -1361,105 +1424,80 @@ int main() {
         whyItWorks: 'Clarifica que las funciones con prefijo "s" operan sobre buffers en memoria RAM sin interactuar con discos o terminales.'
       }
     ],
-    theoryContent: `
-## 1. INTRODUCCIÓN Y MOTIVACIÓN
+    theoryContent: `# Capítulo 7: Entrada y Salida (\`stdio.h\`)
 
-### Contexto Histórico K&R
-En el diseño original de C, Dennis Ritchie decidió intencionalmente no incluir instrucciones de entrada/salida como primitivas del lenguaje (a diferencia de PASCAL o FORTRAN). La E/S se implementó en su totalidad como una **Librería Estándar Portable** (\`<stdio.h>\`), garantizando que los programas C pudieran compilarse sin modificaciones en distintas arquitecturas de hardware abstraídas mediante flujos (*streams*).
+---
 
-### Analogía Intuitiva
-Un flujo de E/S en C es como una **cinta transportadora de paquetes de texto/bytes**:
-* El programa deposita paquetes en la cinta (\`fprintf\`, \`fwrite\`) o los recoge (\`fscanf\`, \`fread\`).
-* La librería \`stdio.h\` amortigua las transferencias usando un **Buffer intermedio en RAM**, reduciendo los accesos lentos al disco físico.
+## 1. INTRODUCCIÓN
+
+Las operaciones de Entrada y Salida (E/S o I/O) no forman parte del núcleo del lenguaje C en sí, por lo cual C ha permanecido extremadamente ligero y portátil para microcontroladores diminutos. En su lugar, K&R diseñaron una Biblioteca Estándar inmensamente robusta dictada por el ANSI C que provee estas capacidades (declarada en \`<stdio.h>\`).
 
 ---
 
 ## 2. EXPLICACIÓN TEÓRICA AMPLIADA
 
-### 2.1 Flujos Estándar y la Estructura \`FILE*\`
-Al iniciar cualquier aplicación C, el entorno de tiempo de ejecución abre automáticamente tres flujos estándar:
-* **\`stdin\`**: Entrada estándar (teclado, descriptor \`0\`).
-* **\`stdout\`**: Salida estándar (consola con buffer por líneas, descriptor \`1\`).
-* **\`stderr\`**: Error estándar (consola sin buffer inmediato, descriptor \`2\`).
+### 2.1 E/S Formateada: \`printf\` y \`scanf\`
+C provee la función variádica \`printf\` y \`scanf\` que aceptan un número indeterminado de argumentos, definidos por un patrón string.
 
-La estructura incompleta \`FILE\` es un **manejador de flujo** que contiene el buffer interno de E/S, indicadores de posición, banderas de error y el descriptor asignado por el Kernel.
+#### La anatomía de printf()
+El formato general de las conversiones de impresión es:
+\`%[-][min_width][.precision][l]conversion_char\`
 
----
+Ejemplos:
+* \`%d\`: Entero decimal estándar
+* \`%05d\`: Entero rellenado con ceros hasta 5 posiciones (ej. \`00123\`)
+* \`%.3f\`: Punto flotante con exactamente 3 decimales
+* \`%p\`: Formatea un puntero imprimiblemente en hexadecimal.
 
-### 2.2 Apertura, Modos y Cierre de Archivos (\`fopen\` / \`fclose\`)
-Para abrir un archivo en disco se utiliza \`fopen(nombre, modo)\`:
+#### La naturaleza de scanf()
+La función \`scanf\` analiza la entrada basándose en un formato. Su peligro radica en que **modifica variables externas**, por lo tanto, **exige punteros**.
+\`\`\`c
+int day, year;
+char monthname[20];
+scanf("%d %s %d", &day, monthname, &year);
+\`\`\`
+Nota que \`day\` y \`year\` llevan el símbolo \`&\` (dirección), pero \`monthname\` NO, ya que el nombre de un arreglo es intrínsecamente un puntero en C.
 
-| Modo | Descripción | Comportamiento si el archivo no existe |
-| :--- | :--- | :--- |
-| **\`"r"\`** | Lectura de texto | Falla y retorna \`NULL\` |
-| **\`"w"\`** | Escritura de texto | Lo crea de cero (si existe, lo trunca a 0 bytes) |
-| **\`"a"\`** | Anexar texto (*append*) | Lo crea de cero (escribe siempre al final del archivo) |
-| **\`"rb"\` / \`"wb"\`** | Modo binario sin traducción de caracteres \`\\r\\n\` | Según corresponda (\`r\` o \`w\`) |
+### 2.2 Archivos Secuenciales con Archivos de Texto
+C abstrae el concepto de un archivo físico usando un puntero especial de tipo \`FILE\` proveído por el sistema operativo.
 
-#### Regla de Oro:
-Siempre se debe verificar si \`fopen()\` devolvió \`NULL\` antes de operar con el puntero \`FILE*\`. Al terminar, invocar \`fclose(fp)\` para volcar los buffers a disco.
+\`\`\`c
+FILE *fp;
+fp = fopen("datos.txt", "r"); // Abre en modo lectura (read)
+if (fp == NULL) {
+    // Manejo de error si el archivo no existe
+}
+\`\`\`
+C define los modos \`"r"\` (lectura), \`"w"\` (escritura destructiva) y \`"a"\` (append/adición).
+Una vez abierto el "file pointer", se pueden utilizar operaciones análogas de string o carácter, pero dirigidas a ese flujo:
+* \`getc(fp)\` / \`putc(c, fp)\`: equivalentes de \`getchar\` y \`putchar\`.
+* \`fscanf(fp, "%d", &x)\`: lee formateado.
+* \`fprintf(fp, "Hola")\`: escribe formateado.
 
----
+Es un requisito de memoria indispensable invocar \`fclose(fp)\` cuando terminas con el archivo, liberando el Descriptor de Archivo que asignó el OS.
 
-### 2.3 Formateo en Memoria: \`sprintf\` y \`sscanf\`
-* **\`sprintf(buffer, "fmt", ...)\`**: Formatea texto y lo escribe en el arreglo \`buffer\`.
-* **\`sscanf(cadena, "fmt", ...)\`**: Analiza y extrae variables desde una cadena de texto en RAM.
+### 2.3 Procesamiento con Strings: \`sprintf\` y \`sscanf\`
+Es sumamente común y poderoso parsear textos provenientes de la red, o generar mensajes en memoria en lugar de enviarlos a una terminal.
+\`\`\`c
+char buffer[100];
+// Imprime DENTRO del arreglo de caracteres
+sprintf(buffer, "El %s es %d", "año", 2026);
 
----
+// Analiza (Parseo) DESDE un string en memoria
+sscanf("Dato 123.45", "%s %f", bufTexto, &flotante);
+\`\`\`
 
 ### 2.4 E/S Binaria y Acceso Aleatorio (\`fread\`, \`fwrite\`, \`fseek\`)
-* **\`fwrite(ptr, size, count, fp)\`**: Escribe \`count\` elementos de \`size\` bytes desde la memoria al archivo.
-* **\`fread(ptr, size, count, fp)\`**: Lee bloques binarios directamente a memoria.
-* **\`fseek(fp, offset, origin)\`**: Mueve el puntero de posición del archivo:
-  * \`SEEK_SET\`: Desde el inicio del archivo.
-  * \`SEEK_CUR\`: Desde la posición actual.
-  * \`SEEK_END\`: Desde el final del archivo.
+Las funciones formateadas como \`fprintf\` escriben secuencias legibles en ASCII (por ejemplo, el entero 1234 se escribe como 4 bytes de texto: '1', '2', '3', '4'). 
+Para almacenar estructuras o matrices puras tal cual residen en RAM (mucho más rápido y eficiente), C utiliza \`fread\` y \`fwrite\`.
 
----
+\`\`\`c
+struct Registro reg;
+// Escribe el bloque de memoria de la variable "reg" intacto al disco
+fwrite(&reg, sizeof(struct Registro), 1, fp);
+\`\`\`
 
-## 3. ANÁLISIS DE COMPLEJIDAD Y RENDIMIENTO
-
-### Buffering en \`stdio.h\` vs Transferencias Unbuffered
-Llamar repetidamente a \`getc()\` no ejecuta un acceso a disco por cada carácter. \`stdio.h\` lee bloques de $4096$ bytes a un buffer en RAM ($O(1)$ amortizado), reduciendo las llamadas al sistema del kernel de $O(N)$ a $O(N / 4096)$.
-
----
-
-## 4. APLICACIONES EN EL MUNDO REAL
-
-1. **Servidores Web y Logs de Sistema**: Escriben registros de auditoría formateados en tiempo real mediante \`fprintf(fp, ...)\`.
-2. **Bases de Datos Relacionales (Storage Engines)**: Utilizan \`fseek()\` y \`fread()\` para leer páginas de datos fijas de 4KB/8KB de forma aleatoria desde el disco.
-3. **Parseo de Archivos de Configuración (JSON / INI)**: Utilizan \`fgets()\` y \`sscanf()\` para procesar líneas de texto con seguridad.
-
----
-
-## 5. NOTAS DE IMPLEMENTACIÓN Y GOTCHAS EN C
-
-### 1. El Riesgo de Seguridad de \`gets()\` y \`scanf("%s")\`
-* **\`gets()\`**: Está **prohibida** en el estándar C11 porque no limita la cantidad de caracteres leídos, provocando desbordamientos de buffer (*Buffer Overflow*).
-* **Solución Segura**: Utilizar siempre \`fgets(buffer, sizeof(buffer), fp)\`.
-
-### 2. Bucle Infinito de Lectura por Mal Uso de \`feof()\`
-\`feof(fp)\` solo devuelve verdadero **después** de que una operación de lectura intentó leer más allá del final del archivo. Nunca debe usarse como condición directa del bucle \`while (!feof(fp))\`.
-
----
-
-## 6. GLOSARIO DE TÉRMINOS DE LA CLASE
-
-* **Stream (Flujo)**: Abstracción de un canal de datos secuencial de entrada o salida.
-* **FILE***: Estructura que actúa como manejador del flujo de datos en \`stdio.h\`.
-* **Buffer**: Zona de memoria RAM intermedia que acumula datos para optimizar transferencias con el disco.
-* **fseek**: Función de posicionamiento arbitrario dentro de un archivo.
-* **Buffer Overflow**: Vulnerabilidad causada por escribir más datos en un buffer de los que puede almacenar.
-
----
-
-## 7. MATERIALES DE APOYO Y REFERENCIAS
-
-* **Para Profundizar en el Libro de Texto**:
-  * **Kernighan & Ritchie (K&R C)**: Capítulo 7 completo (*Input and Output*), Secciones 7.1 a 7.8 (págs. 151–168).
-* **Resumen en Una Frase**:
-  > *"La librería stdio de C transforma la complejidad de las operaciones físicas de disco en flujos de datos estructurados, limpios e interconectados."*
-`,
+Las funciones binarias se combinan con **\`fseek(fp, desplazamiento, origen)\`** que permite mover el cabezal del lector a cualquier byte del archivo sin leerlo secuencialmente de inicio a fin.`,
     codeExamples: [
       {
         title: '1. Procesamiento de Cadenas Formateadas con sprintf y sscanf',
@@ -1657,114 +1695,65 @@ int main() {
         whyItWorks: 'Demuestra el funcionamiento de la cabecera oculta `Header` que antecede al puntero retornado por malloc.'
       }
     ],
-    theoryContent: `
-## 1. INTRODUCCIÓN Y MOTIVACIÓN
+    theoryContent: `# Capítulo 8: La Interfaz del Sistema Operativo UNIX
 
-### Contexto Histórico K&R
-C y UNIX nacieron en estrecha simbiosis en Bell Labs. Dennis Ritchie y Ken Thompson diseñaron el lenguaje C específicamente para reescribir el Kernel de UNIX en 1972. Por esta razón, comprender el Capítulo 8 de K&R es entender las tripas mismas de los sistemas operativos modernos (Linux, macOS, Android), donde las funciones de la librería de C abren una puerta directa hacia las **Llamadas al Sistema** (*System Calls*).
+---
 
-### Analogía Intuitiva
-La interfaz de UNIX distingue dos mundos separados por hardware:
-* **Espacio de Usuario (*User Space*)**: Donde corre tu programa C.
-* **Espacio de Kernel (*Kernel Space*)**: Donde residen los controladores de disco, tarjeta de red y memoria física.
-Una **System Call** (\`read\`, \`write\`, \`sbrk\`) es una interrupción de hardware organizada que le pide al Kernel realizar un trabajo en su nombre.
+## 1. INTRODUCCIÓN
+
+A lo largo del curso, hemos utilizado las bibliotecas del estándar \`stdio.h\` o \`stdlib.h\`. Pero, ¿qué hay más abajo? ¿Cómo pide C memoria o guarda un archivo realmente?
+
+Este capítulo final se sumerge al nivel más bajo posible. Estudiaremos la **interfaz real** entre los programas en C y el sistema operativo UNIX (y derivados como Linux/macOS). Las rutinas estándar (como \`printf\` o \`fopen\`) en realidad no son más que abstracciones amigables (wrappers) que por debajo están llamando a primitivas crudas del núcleo (Kernel).
 
 ---
 
 ## 2. EXPLICACIÓN TEÓRICA AMPLIADA
 
-### 2.1 Descriptores de Archivo de Bajo Nivel (\`0\`, \`1\`, \`2\`)
-En UNIX, "Todo es un archivo" (*Everything is a file*). Un **descriptor de archivo** es un entero entero pequeño que indexa la tabla de archivos abiertos del proceso:
-* **\`0\`**: Entrada estándar (\`stdin\`).
-* **\`1\`**: Salida estándar (\`stdout\`).
-* **\`2\`**: Error estándar (\`stderr\`).
+### 2.1 El Espacio de Usuario y el Concepto de System Call
+Una CPU moderna opera en anillos de protección. Los programas creados por ti se ejecutan en *User Space* (bajos privilegios). Si deseas leer el disco duro o enviar un byte a la pantalla, no puedes hacerlo directamente en hardware. Debes ejecutar una instrucción especial (una interrupción trampa o \`syscall\`) solicitando que el Kernel (*Kernel Space*, altos privilegios) lo haga por ti.
+Una **System Call** (\`read\`, \`write\`, \`sbrk\`) es una interrupción de hardware organizada que le pide al Kernel realizar un trabajo en su nombre.
 
----
+### 2.2 Descriptores de Archivo de Bajo Nivel (\`0\`, \`1\`, \`2\`)
+En el sistema UNIX, **todo es un archivo**: teclado, pantalla, red, discos impresoras y tuberías. Al arrancar tu binario de C, el Kernel ya abre automáticamente tres descriptores (índices enteros):
+* **0 (Standard Input)**: Típicamente vinculado al teclado de tu terminal.
+* **1 (Standard Output)**: Típicamente vinculado a la pantalla.
+* **2 (Standard Error)**: Diagnóstico y errores, también vinculado a la pantalla incluso si \`stdout\` es redirigido con \`>\`.
 
-### 2.2 Entrada/Salida no Amortiguada: \`read\` y \`write\`
-Las llamadas primitivas al sistema operativo para transferir bytes sin buffer intermedio son:
+Para hacer un I/O de bajo nivel en UNIX, se evitan \`fopen\` y \`fread\`. En su lugar, se utilizan \`open\`, \`read\` y \`write\`.
 \`\`\`c
-#include <unistd.h>
+#include <unistd.h> // Cabecera estándar POSIX UNIX
 
-int n_read = read(int fd, char *buf, int nbytes);
-int n_written = write(int fd, const char *buf, int nbytes);
+int fd = open("datos.bin", O_RDONLY);
+char buffer[1024];
+int n_bytes_leidos = read(fd, buffer, sizeof(buffer));
+write(1, buffer, n_bytes_leidos); // Escribe directamente al descriptor 1 (stdout)
 \`\`\`
-* \`read()\` devuelve la cantidad de bytes efectivamente leídos (retorna \`0\` al alcanzar el fin de archivo EOF).
-* \`write()\` devuelve el número de bytes transferidos al canal.
+Estas funciones no proveen ni almacenamiento en búfer intermedio (buffering), ni conversión a cadenas, ni mapeos. Mueven bytes crudos desde y hacia la RAM del proceso al hardware lo más rápido que la física permite.
 
----
+### 2.3 Entendiendo a fondo el Asignador de Memoria (\`malloc\`)
+Cuando declaras una variable local (\`int x;\`), ésta vive en el **Stack** (pila), que crece ordenadamente y se auto-libera. Pero cuando el tamaño de tus datos no se conoce hasta la ejecución (ej: leer todos los píxeles de una imagen), debes solicitar memoria al **Heap**.
 
-### 2.3 Control de Posición (\`lseek\`) y Metadatos (\`stat\`)
-* **\`lseek(fd, offset, origin)\`**: Cambia la posición actual de lectura/escritura en el descriptor sin transferir datos.
-* **\`stat(path, &st)\`**: Consulta los metadatos guardados en el **Inodo** del sistema de archivos (tamaño en bytes, permisos, propietario, timestamps).
+\`malloc\` no es parte del Sistema Operativo. Es una función de C escrita en la librería \`stdlib\`. \`malloc\` gestiona un inmenso bloque de memoria continua que el OS le concedió con la system call \`sbrk()\`.
 
----
+#### ¿Cómo funciona malloc y free por dentro? (El algoritmo de K&R)
+El Heap es gestionado como una lista vinculada circular (Linked List) de bloques de memoria vacíos o en uso.
+Cuando invocas \`p = malloc(100)\`:
+1. \`malloc\` escanea esta lista en busca de un "agujero" contiguo de memoria de 100 bytes (con políticas como *First Fit* o *Best Fit*).
+2. Si lo encuentra, corta el agujero y te entrega el puntero.
+3. ¡CRÍTICO! \`malloc\` en realidad recorta 100 bytes **+ tamaño de una cabecera oculta (Header)**. Este Header se coloca justo *antes* del byte al que apunta \`p\`. El Header indica silenciosamente cuántos bytes ocupa este bloque en realidad, para que \`free(p)\` sepa cuánta memoria recuperar.
 
-### 2.4 Diseño Interno de un Asignador de Memoria (\`malloc\` / \`free\` en K&R)
-El asignador de memoria en el Heap de C opera solicitando bloques grandes al Kernel mediante la llamada \`sbrk(nbytes)\`.
-
-#### Estructura de la Cabecera de Bloque (\`Header\`):
-Cada bloque reservado en el Heap posee una **cabecera invisible** justo antes de la dirección retornado al usuario:
 \`\`\`c
-typedef long Align; // Forzar alineación al límite de memoria de la CPU
-
-union header {
-    struct {
-        union header *ptr; // Puntero al siguiente bloque libre en la lista circular
-        unsigned size;     // Tamaño del bloque en unidades de Header
-    } s;
-    Align x; // Garantiza alineación estricta de memoria
-};
-
-typedef union header Header;
+// Anatomía oculta del puntero que recibes:
+[ Tamaño Real | Siguiente Nodo ] <- El HEADER secreto de malloc
+[  ... Memoria Usable de 100 bytes ...  ] <- Lo que recibe el programador (puntero 'p')
 \`\`\`
 
----
+#### Los peligros del Heap
+Si se escribe más allá de los límites de un arreglo dinámico reservado con \`malloc()\`, se sobrescribirá la estructura \`Header\` del bloque contiguo, provocando un colapso catastrófico (*Segmentation Fault*) al invocar \`free()\`. Esta es la famosa vulnerabilidad de **Heap Buffer Overflow**.
 
-## 3. ANÁLISIS DE COMPLEJIDAD Y RENDIMIENTO
-
-### Costo de Context Switches en System Calls
-* **Acceso a Memoria RAM (User Space)**: ~1 a 10 nanosegundos.
-* **Llamada al Sistema (Context Switch al Kernel)**: ~1,000 a 10,000 nanosegundos.
-Por ello, hacer una llamada \`write(1, &c, 1)\` dentro de un bucle de 1,000,000 de caracteres es **1000 veces más lento** que acumularlos en un buffer de \`stdio.h\` e invocarlo una sola vez.
-
----
-
-## 4. APLICACIONES EN EL MUNDO REAL
-
-1. **Clones de Utilidades de Terminal UNIX**: Herramientas como \`cat\`, \`cp\`, \`ls\` y \`mkdir\` se escriben utilizando llamadas nativas \`read\`, \`write\` y \`readdir\`.
-2. **Motores de Contenedores (Docker / LXC)**: Interceptan llamadas al sistema para aislar procesos en espacios de nombres (*namespaces*).
-3. **Gestores de Memoria de Alto Rendimiento (jemalloc / tcmalloc)**: Heredan el diseño de lista libre de K&R optimizado para entornos multihilo.
-
----
-
-## 5. NOTAS DE IMPLEMENTACIÓN Y GOTCHAS EN C
-
-### 1. Fragmentación Externa de Memoria en el Heap
-Llamar repetidamente a \`malloc()\` y \`free()\` con tamaños dispares divide la memoria libre en miles de fragmentos pequeños e inconexos, provocando fallos por falta de memoria contigua aunque el total libre sea suficiente.
-
-### 2. Corrupción de Cabecera por Desbordamiento de Arreglo
-Si se escribe más allá de los límites de un arreglo dinámico reservado con \`malloc()\`, se sobrescribirá la estructura \`Header\` del bloque contiguo, provocando un colapso catastrófico (*Segmentation Fault*) al invocar \`free()\`.
-
----
-
-## 6. GLOSARIO DE TÉRMINOS DE LA CLASE
-
-* **System Call**: Instrucción de interfaz que solicita al Kernel del sistema operativo ejecutar una acción privilegiada.
-* **Descriptor de Archivo**: Índice entero de bajo nivel que identifica un canal de E/S abierto.
-* **Inodo**: Estructura de datos en disco que contiene todos los metadatos de un archivo excepto su nombre.
-* **sbrk / brk**: Llamada al sistema UNIX para incrementar o decrementar el límite superior de memoria del Heap (*Program Break*).
-* **Fragmentación**: Degradación de la eficiencia de la memoria por la dispersión de bloques libres pequeños.
-
----
-
-## 7. MATERIALES DE APOYO Y REFERENCIAS
-
-* **Para Profundizar en el Libro de Texto**:
-  * **Kernighan & Ritchie (K&R C)**: Capítulo 8 completo (*The UNIX System Interface*), Secciones 8.1 a 8.7 (págs. 169–189).
-* **Resumen en Una Frase**:
-  > *"Comprender la interfaz UNIX en C de demarca el límite exacto donde el software deja de ser código abstracto para convertirse en instrucciones físicas ejecutadas por el sistema operativo."*
-`,
+### 2.4 Directorios y Metadatos de Inodos (Struct stat)
+Finalmente, UNIX trata los directorios simplemente como un archivo ordinario de tipo especial, cuyo contenido es una matriz tabular de nombres de archivos asociados a un **Inodo** (el número de identidad real de los archivos en disco).
+Las llamadas al sistema \`stat(nombre, &struct)\` permiten, en un solo golpe de I/O, rellenar una gran estructura con la fecha de modificación, el propietario (UID), los permisos rwx, y el tamaño masivo del disco. Es el corazón subyacente de la instrucción bash \`ls -l\`.`,
     codeExamples: [
       {
         title: '1. Simulación de Reserva Dinámica y Liberación en el Heap',

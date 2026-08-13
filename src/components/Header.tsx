@@ -13,6 +13,10 @@ interface HeaderProps {
   isLeaderboardActive?: boolean;
   onOpenCertamenes?: () => void;
   isCertamenesActive?: boolean;
+  isLaboratoriesActive?: boolean;
+  onOpenLaboratories?: () => void;
+  isFlashcardsActive?: boolean;
+  onOpenFlashcards?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({

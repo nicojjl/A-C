@@ -29,7 +29,10 @@ import {
 import { motion } from 'motion/react';
 import { CCourseCap1Animation1 } from './animations/CCourseCap1Animation1';
 import { CCourseCap1Animation2 } from './animations/CCourseCap1Animation2';
+import { InteractiveMemoryVisualizer } from './Visualizers/InteractiveMemoryVisualizer';
 import { ExercisePlayground } from './ExercisePlayground';
+import { StandaloneSandbox } from './StandaloneSandbox';
+import { getSandboxInitialCode } from '../data/sandboxCode';
 import { ExportSummaryButton } from './ExportSummaryButton';
 
 interface CCourseViewProps {
@@ -398,6 +401,23 @@ export const CCourseView: React.FC<CCourseViewProps> = ({
             <div className="prose max-w-none text-xs sm:text-sm text-[#1A1A1A] leading-relaxed border-t border-[#F2F1EE] pt-6">
               <MarkdownRenderer content={currentChapter.theoryContent} />
             </div>
+            
+            <div className="mt-8 border-t border-[#F2F1EE] pt-8">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+                  <Terminal className="w-5 h-5 text-[#C2410C]" />
+                  Laboratorio de Código Integrado (Sandbox)
+                </h3>
+                <p className="text-sm text-[#4A4742]">
+                  Practica lo que acabas de leer. Escribe tu propio código C, ejecútalo en el navegador y verifica el resultado en la consola interactiva.
+                </p>
+              </div>
+              <StandaloneSandbox 
+                key={`sandbox-${currentChapter.id}`} 
+                initialCode={getSandboxInitialCode(currentChapter.id)} 
+                title={`Laboratorio: Capítulo ${currentChapter.chapterNumber}`}
+              />
+            </div>
           </motion.div>
         )}
 
@@ -466,96 +486,8 @@ export const CCourseView: React.FC<CCourseViewProps> = ({
                 <CCourseCap1Animation2 />
               </div>
             )}
-            {/* Inspector 1: Punteros y Memoria Stack */}
-            <div className="bg-[#F9F8F6] border border-[#E5E2DE] rounded-2xl p-6 space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#E5E2DE]">
-                <div>
-                  <h3 className="text-lg font-serif font-bold text-[#1A1A1A] flex items-center gap-2">
-                    <Cpu className="w-5 h-5 text-[#C2410C]" />
-                    <span>Inspector Animado de Memoria Stack y Punteros</span>
-                  </h3>
-                  <p className="text-xs text-[#8C8882]">
-                    Visualiza la asignación de variables en la memoria RAM, direcciones hexadecimales y la desreferenciación mediante punteros paso a paso.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setMemStep((prev) => Math.max(0, prev - 1))}
-                    disabled={memStep === 0}
-                    className="px-3 py-1.5 bg-[#E5E2DE] disabled:opacity-40 text-[#1A1A1A] rounded-lg text-xs font-bold flex items-center gap-1"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    <span>Anterior</span>
-                  </button>
-                  <span className="text-xs font-mono font-bold px-3 py-1 bg-white rounded-lg border border-[#E5E2DE]">
-                    Paso {memStep + 1} / {MEMORY_SIMULATION_STEPS.length}
-                  </span>
-                  <button
-                    onClick={() => setMemStep((prev) => Math.min(MEMORY_SIMULATION_STEPS.length - 1, prev + 1))}
-                    disabled={memStep === MEMORY_SIMULATION_STEPS.length - 1}
-                    className="px-3 py-1.5 bg-[#C2410C] hover:bg-[#9A3412] disabled:opacity-40 text-white rounded-lg text-xs font-bold flex items-center gap-1"
-                  >
-                    <span>Siguiente</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Step Title & Explanation */}
-              <div className="p-4 bg-white border border-[#FDBA74] rounded-xl text-xs space-y-1">
-                <span className="font-serif font-bold text-[#C2410C] text-sm block">
-                  {MEMORY_SIMULATION_STEPS[memStep].title}
-                </span>
-                <p className="text-[#4A4742]">
-                  {MEMORY_SIMULATION_STEPS[memStep].description}
-                </p>
-              </div>
-
-              {/* RAM Stack Memory Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {MEMORY_SIMULATION_STEPS[memStep].stack.map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className={`p-5 rounded-xl border font-mono transition-all ${
-                      item.highlighted
-                        ? 'bg-[#FFF7ED] border-[#C2410C] shadow-md'
-                        : 'bg-white border-[#E5E2DE]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between border-b pb-2 mb-3">
-                      <span className="text-xs font-bold text-[#1A1A1A]">
-                        Variable: <span className="text-[#C2410C]">{item.name}</span>
-                      </span>
-                      <span className="text-[10px] text-[#8C8882] bg-[#F2F1EE] px-2 py-0.5 rounded">
-                        {item.type}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-[#8C8882]">Dirección RAM:</span>
-                        <span className="font-bold text-stone-700">{item.address}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#8C8882]">Valor Almacenado:</span>
-                        <span className="font-bold text-[#10B981] text-sm">{item.value}</span>
-                      </div>
-                      {item.isPointer && item.pointsTo && (
-                        <div className="pt-2 border-t border-dashed border-[#E5E2DE] text-[11px] text-[#C2410C] font-semibold flex items-center justify-between">
-                          <span>Apunta a:</span>
-                          <span className="bg-[#FFF7ED] px-2 py-0.5 rounded border border-[#FDBA74]">
-                            👉 {item.pointsTo}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+            {/* Inspector 1: Punteros y Memoria Stack interactivo */}
+            <InteractiveMemoryVisualizer />
 
             {/* Inspector 2: Interactive Bitwise Operator Switchboard */}
             <div className="bg-[#F9F8F6] border border-[#E5E2DE] rounded-2xl p-6 space-y-6">

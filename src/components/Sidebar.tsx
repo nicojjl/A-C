@@ -18,7 +18,8 @@ import {
   Zap,
   Sparkles,
   X,
-  Filter
+  Filter,
+  Layers
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -38,6 +39,10 @@ interface SidebarProps {
   onOpenAlgoCourse?: () => void;
   isCertamenesActive?: boolean;
   onOpenCertamenes?: () => void;
+  isLaboratoriesActive?: boolean;
+  onOpenLaboratories?: () => void;
+  isFlashcardsActive?: boolean;
+  onOpenFlashcards?: () => void;
   selectedCChapterId?: string;
   onSelectCChapter?: (chapterId: string) => void;
   completedCSubtopics?: string[]; // IDs of completed C chapters
@@ -62,6 +67,10 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
   onOpenAlgoCourse,
   isCertamenesActive = false,
   onOpenCertamenes,
+  isLaboratoriesActive = false,
+  onOpenLaboratories,
+  isFlashcardsActive = false,
+  onOpenFlashcards,
   selectedCChapterId = 'cap-1',
   onSelectCChapter,
   completedCSubtopics = [],
@@ -228,6 +237,60 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
               </span>
               <span className={`text-[10px] font-mono block ${isCertamenesActive ? 'text-white/80' : 'text-[#C2410C]'}`}>
                 6 Pruebas • Pautas C99 &amp; PDF
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 opacity-60" />
+        </button>
+        <button
+          onClick={() => {
+            if (onOpenLaboratories) {
+              onOpenLaboratories();
+            }
+          }}
+          className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${
+            isLaboratoriesActive
+              ? 'border-[#10B981] bg-[#10B981] text-white shadow-xs'
+              : 'border-[#34D399] bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#059669]'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className={`p-1.5 rounded-lg ${isLaboratoriesActive ? 'bg-white text-[#10B981]' : 'bg-[#10B981] text-white'}`}>
+              <Terminal className="w-4 h-4" />
+            </div>
+            <div className="text-left">
+              <span className="text-xs font-serif font-bold block leading-tight">
+                Laboratorios (Proyectos)
+              </span>
+              <span className={`text-[10px] font-mono block ${isLaboratoriesActive ? 'text-white/80' : 'text-[#059669]'}`}>
+                Desafíos guiados paso a paso
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 opacity-60" />
+        </button>
+        <button
+          onClick={() => {
+            if (onOpenFlashcards) {
+              onOpenFlashcards();
+            }
+          }}
+          className={`w-full p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${
+            isFlashcardsActive
+              ? 'border-[#C2410C] bg-[#C2410C] text-white shadow-xs'
+              : 'border-[#FDBA74] bg-[#FFF7ED] hover:bg-[#FFEAD5] text-[#C2410C]'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className={`p-1.5 rounded-lg ${isFlashcardsActive ? 'bg-white text-[#C2410C]' : 'bg-[#C2410C] text-white'}`}>
+              <Layers className="w-4 h-4" />
+            </div>
+            <div className="text-left">
+              <span className="text-xs font-serif font-bold block leading-tight">
+                Tarjetas de Memoria
+              </span>
+              <span className={`text-[10px] font-mono block ${isFlashcardsActive ? 'text-white/80' : 'text-[#C2410C]'}`}>
+                Repaso espaciado rápido
               </span>
             </div>
           </div>

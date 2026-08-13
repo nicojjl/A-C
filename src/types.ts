@@ -236,3 +236,32 @@ export interface AlgorithmItem {
   }[];
 }
 
+
+
+export interface LabStep {
+  id: string;
+  title: string;
+  descriptionMarkdown: string;
+  initialCode: string;
+  solutionCode: string;
+  hint: string;
+  testCases: TestCase[];
+}
+
+export interface Laboratory {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'Principiante' | 'Intermedio' | 'Avanzado';
+  estimatedMinutes: number;
+  steps: LabStep[];
+}
+
+
+export interface Flashcard {
+  id: string;
+  category: 'sintaxis' | 'punteros' | 'memoria' | 'archivos' | 'conceptos';
+  front: string;
+  backMarkdown: string;
+  codeSnippet?: string;
+}

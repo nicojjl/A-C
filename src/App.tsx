@@ -24,7 +24,7 @@ const LeaderboardView = lazy(() => import('./components/LeaderboardView').then(m
 const CertamenesView = lazy(() => import('./components/CertamenesView').then(m => ({ default: m.CertamenesView })));
 
 export default function App() {
-  const [viewMode, setViewMode] = useState<'dashboard' | 'class' | 'c_course' | 'visualizer' | 'leaderboard' | 'certamenes'>('dashboard');
+  const [viewMode, setViewMode] = useState<'dashboard' | 'class' | 'c_course' | 'visualizer' | 'leaderboard' | 'certamenes' | 'laboratories' | 'flashcards'>('dashboard');
   const [selectedItemId, setSelectedItemId] = useState<string>('clase-1');
   const [selectedAlgoId, setSelectedAlgoId] = useState<string>('merge-sort');
 
@@ -243,15 +243,16 @@ export default function App() {
         userLevel={levelInfo.level}
         streakDays={userProfile.streakDays}
         onOpenLeaderboard={() => setViewMode('leaderboard')}
-        isLeaderboardActive={viewMode === 'leaderboard'}
+        isLeaderboardActive={false}
         onOpenCertamenes={() => setViewMode('certamenes')}
-        isCertamenesActive={viewMode === 'certamenes'}
+
+        isCertamenesActive={false}
       />
 
       {/* Main Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Left Sidebar (Hidden on Dashboard, Leaderboard, and Certamenes views) */}
-        {viewMode !== 'dashboard' && viewMode !== 'leaderboard' && viewMode !== 'certamenes' && (
+        {viewMode !== 'dashboard' && viewMode !== 'leaderboard' && viewMode !== 'certamenes' && viewMode !== 'laboratories' && viewMode !== 'flashcards' && (
           <Sidebar
             items={COURSES_DATA}
             selectedItemId={selectedItemId}
@@ -261,12 +262,16 @@ export default function App() {
             onOpenCCourse={() => setViewMode('c_course')}
             isVisualizerActive={viewMode === 'visualizer'}
             onOpenVisualizer={() => setViewMode('visualizer')}
-            isLeaderboardActive={viewMode === 'leaderboard'}
+            isLeaderboardActive={false}
             onOpenLeaderboard={() => setViewMode('leaderboard')}
             isAlgoCourseActive={viewMode === 'class'}
             onOpenAlgoCourse={() => setViewMode('class')}
-            isCertamenesActive={viewMode === 'certamenes'}
+            isCertamenesActive={false}
             onOpenCertamenes={() => setViewMode('certamenes')}
+            isLaboratoriesActive={false}
+            onOpenLaboratories={() => setViewMode('laboratories')}
+            isFlashcardsActive={false}
+            onOpenFlashcards={() => setViewMode('flashcards')}
             selectedCChapterId={selectedCChapterId}
             onSelectCChapter={handleSelectCChapter}
             completedCSubtopics={completedCSubtopics}
@@ -386,6 +391,8 @@ export default function App() {
                   }}
                   onOpenLeaderboard={() => setViewMode('leaderboard')}
                   onOpenCertamenes={() => setViewMode('certamenes')}
+                  onOpenLaboratories={() => setViewMode('laboratories')}
+                  onOpenFlashcards={() => setViewMode('flashcards')}
                   userXP={userXP}
                   userLevel={levelInfo.level}
                   streakDays={userProfile.streakDays}
