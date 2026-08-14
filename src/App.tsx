@@ -22,6 +22,8 @@ const CCourseView = lazy(() => import('./components/CCourseView').then(m => ({ d
 const AlgorithmVisualizerView = lazy(() => import('./components/AlgorithmVisualizerView').then(m => ({ default: m.AlgorithmVisualizerView })));
 const LeaderboardView = lazy(() => import('./components/LeaderboardView').then(m => ({ default: m.LeaderboardView })));
 const CertamenesView = lazy(() => import('./components/CertamenesView').then(m => ({ default: m.CertamenesView })));
+const LaboratoriesView = lazy(() => import('./components/LaboratoriesView').then(m => ({ default: m.LaboratoriesView })));
+const FlashcardsView = lazy(() => import('./components/FlashcardsView').then(m => ({ default: m.FlashcardsView })));
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'dashboard' | 'class' | 'c_course' | 'visualizer' | 'leaderboard' | 'certamenes' | 'laboratories' | 'flashcards'>('dashboard');
@@ -397,6 +399,10 @@ export default function App() {
                   userLevel={levelInfo.level}
                   streakDays={userProfile.streakDays}
                 />
+              ) : viewMode === 'laboratories' ? (
+                <LaboratoriesView />
+              ) : viewMode === 'flashcards' ? (
+                <FlashcardsView />
               ) : viewMode === 'c_course' ? (
                 <CCourseView
                   completedSubtopics={completedCSubtopics}
