@@ -252,7 +252,7 @@ export default function App() {
       {/* Main Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Left Sidebar (Hidden on Dashboard, Leaderboard, and Certamenes views) */}
-        {viewMode !== 'dashboard' && viewMode !== 'leaderboard' && viewMode !== 'certamenes' && viewMode !== 'laboratories' && viewMode !== 'flashcards' && (
+        {viewMode !== 'dashboard' && viewMode !== 'leaderboard' && viewMode !== 'certamenes' && (
           <Sidebar
             items={COURSES_DATA}
             selectedItemId={selectedItemId}
@@ -268,9 +268,9 @@ export default function App() {
             onOpenAlgoCourse={() => setViewMode('class')}
             isCertamenesActive={false}
             onOpenCertamenes={() => setViewMode('certamenes')}
-            isLaboratoriesActive={false}
+            isLaboratoriesActive={viewMode === 'laboratories'}
             onOpenLaboratories={() => setViewMode('laboratories')}
-            isFlashcardsActive={false}
+            isFlashcardsActive={viewMode === 'flashcards'}
             onOpenFlashcards={() => setViewMode('flashcards')}
             selectedCChapterId={selectedCChapterId}
             onSelectCChapter={handleSelectCChapter}

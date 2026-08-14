@@ -96,7 +96,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
     });
   }, [sidebarAlgoCategory, algoSearchQuery]);
   return (
-    <aside className="w-full lg:w-80 h-[45vh] lg:h-auto max-h-[calc(100vh-4rem)] bg-[#F9F8F6] border-b lg:border-b-0 lg:border-r border-[#E5E2DE] text-[#1A1A1A] flex flex-col shrink-0 overflow-hidden">
+    <aside className="w-full lg:w-80 h-[45vh] lg:h-auto max-h-[calc(100vh-4rem)] bg-[#F9F8F6] border-b lg:border-b-0 lg:border-r border-[#E5E2DE] text-[#1A1A1A] flex flex-col shrink-0 overflow-y-auto overflow-x-hidden scrollbar-thin">
       {/* Top Navigation Switcher */}
       <div className="p-3 sm:p-4 border-b border-[#E5E2DE] bg-white shrink-0 space-y-2">
         {/* Volver al Menú Principal */}
@@ -371,7 +371,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
       </div>
 
       {/* Course / Algorithm List */}
-      <div className="overflow-y-auto flex-1 min-h-0 p-3 space-y-2 scroll-smooth">
+      <div className="flex-1 p-3 space-y-2">
         {isVisualizerActive ? (
           /* Visualizer Algorithms List */
           filteredSidebarAlgos.length === 0 ? (
