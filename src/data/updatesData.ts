@@ -12,13 +12,29 @@ export interface AppUpdate {
 
 export const APP_UPDATES: AppUpdate[] = [
   {
+    id: 'update-v3.1',
+    version: 'v3.1',
+    date: '15 de Agosto, 2026',
+    title: 'Cierre del Curso Cormen y Alineación del Motor Interactivo',
+    badge: 'Contenido & Arquitectura',
+    badgeColor: 'blue',
+    isLatest: true,
+    description: 'Hemos completado y reestructurado el final del curso "Introduction to Algorithms" (CLRS), publicando las clases finales y alineando 100% la teoría pedagógica con nuestro motor de simulación.',
+    highlights: [
+      'Nuevas Clases Magistrales: Lanzamiento definitivo de la Clase 14 (Grafos Avanzados: Dijkstra, Bellman-Ford, Kruskal, Prim) y Clase 15 (Técnicas de Diseño: Programación Dinámica vs Greedy).',
+      'El Mapa Conceptual Definitivo: La Clase 16 integra un "Cheatsheet" maestro que resume los 16 algoritmos y estructuras clave del curso, sus complejidades $O$ y sus aplicaciones reales en la industria.',
+      'Sincronización Total con la App: El contenido teórico ahora refleja con absoluta honestidad los 13 algoritmos que cuentan con visualización interactiva real en la plataforma, separándolos de los fundamentos puramente teóricos.',
+      'Correcciones Estructurales: Se repararon todos los enlaces de navegación del curso, se restauraron ejercicios de grafos (Unión-Find) y se optimizó el código para superar limpiamente el linter estricto de TypeScript.'
+    ]
+  },
+  {
     id: 'update-v3.0',
     version: 'v3.0',
     date: '13 de Agosto, 2026',
     title: 'Progressive Web App (PWA) & Modo 100% Offline',
     badge: 'PWA & Mobile',
     badgeColor: 'green',
-    isLatest: true,
+    isLatest: false,
     description: 'Convierte la plataforma en una aplicación nativa instalable en tu teléfono o computador. Estudia teoría, algoritmos y practica C sin conexión a Internet.',
     highlights: [
       'Instalable en Android, iOS y Desktop: Presiona "Añadir a la pantalla de inicio" para tener acceso directo como app nativa.',
