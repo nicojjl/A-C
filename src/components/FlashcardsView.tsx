@@ -10,19 +10,41 @@ export const FlashcardsView: React.FC = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState<Set<string>>(new Set());
 
-  const currentCard = FLASHCARDS_DATA[currentIndex];
+  const [activeCategory, setActiveCategory] = useState<string>('Todas');
+
+  const categories = React.useMemo(() => {
+    const cats = Array.from(new Set(FLASHCARDS_DATA.map(c => c.category)));
+    return ['Todas', ...cats];
+  }, []);
+
+  const filteredCards = React.useMemo(() => {
+    if (activeCategory === 'Todas') return FLASHCARDS_DATA;
+    return FLASHCARDS_DATA.filter(c => c.category === activeCategory);
+  }, [activeCategory]);
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  };
+
+  const currentCard = filteredCards[currentIndex];
   
+  const knownCardsInView = React.useMemo(() => {
+    return filteredCards.filter(c => knownCards.has(c.id)).length;
+  }, [filteredCards, knownCards]);
+
   const handleNext = () => {
     setIsFlipped(false);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % FLASHCARDS_DATA.length);
+      setCurrentIndex((prev) => (prev + 1) % filteredCards.length);
     }, 150);
   };
 
   const handlePrev = () => {
     setIsFlipped(false);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + FLASHCARDS_DATA.length) % FLASHCARDS_DATA.length);
+      setCurrentIndex((prev) => (prev - 1 + filteredCards.length) % filteredCards.length);
     }, 150);
   };
 
@@ -65,7 +87,7 @@ export const FlashcardsView: React.FC = () => {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <div className="flex flex-col items-end">
-            <span className="font-bold text-[#1A1A1A]">{knownCards.size} / {FLASHCARDS_DATA.length}</span>
+            <span className="font-bold text-[#1A1A1A]">{knownCardsInView} / {filteredCards.length}</span>
             <span className="text-[#8C8882] text-xs">Memorizadas</span>
           </div>
           <button 
@@ -78,17 +100,37 @@ export const FlashcardsView: React.FC = () => {
         </div>
       </div>
 
+      {/* Categories */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {categories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => handleCategoryChange(cat)}
+            className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${
+              activeCategory === cat 
+                ? 'bg-[#C2410C] text-white' 
+                : 'bg-white border border-[#E5E2DE] text-[#4A4742] hover:bg-[#F9F8F6]'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {/* Progress Bar */}
       <div className="w-full bg-[#E5E2DE] h-2 rounded-full overflow-hidden">
         <motion.div 
           className="h-full bg-[#10B981]"
           initial={{ width: 0 }}
-          animate={{ width: `${(knownCards.size / FLASHCARDS_DATA.length) * 100}%` }}
+          animate={{ width: `${(knownCardsInView / filteredCards.length) * 100}%` }}
           transition={{ duration: 0.5 }}
         />
       </div>
 
       {/* Flashcard Container */}
+      {!currentCard ? (
+        <div className="text-center py-12 text-[#8C8882]">No hay tarjetas en esta categoría.</div>
+      ) : (
       <div className="relative aspect-[4/3] md:aspect-video w-full perspective-1000">
         <AnimatePresence mode="wait">
           <motion.div
@@ -111,7 +153,7 @@ export const FlashcardsView: React.FC = () => {
                   {currentCard.category}
                 </span>
                 <span className="absolute top-6 right-6 text-sm font-bold text-[#8C8882]">
-                  {currentIndex + 1} / {FLASHCARDS_DATA.length}
+                  {currentIndex + 1} / {filteredCards.length}
                 </span>
                 
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#1A1A1A] leading-tight max-w-2xl">
@@ -150,6 +192,7 @@ export const FlashcardsView: React.FC = () => {
           </motion.div>
         </AnimatePresence>
       </div>
+      )}
 
       {/* Controls */}
       <div className="flex items-center justify-between gap-4 max-w-md mx-auto pt-4">

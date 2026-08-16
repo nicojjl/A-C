@@ -260,7 +260,7 @@ export interface Laboratory {
 
 export interface Flashcard {
   id: string;
-  category: 'sintaxis' | 'punteros' | 'memoria' | 'archivos' | 'conceptos';
+  category: string;
   front: string;
   backMarkdown: string;
   codeSnippet?: string;

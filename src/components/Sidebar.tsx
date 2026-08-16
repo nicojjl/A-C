@@ -298,6 +298,8 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
         </button>
       </div>
 
+      {(!isLaboratoriesActive && !isFlashcardsActive) && (
+        <>
       {/* Course / Visualizer Title Header */}
       <div className="p-3 sm:p-4 border-b border-[#E5E2DE] bg-[#F9F8F6] shrink-0 space-y-2.5">
         <div className="flex items-center justify-between">
@@ -578,9 +580,9 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
           })
         )}
       </div>
+      </>
+      )}
     </aside>
   );
 });
-
 Sidebar.displayName = 'Sidebar';
-
