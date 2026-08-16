@@ -1698,62 +1698,82 @@ int main() {
     theoryContent: `# Capítulo 8: La Interfaz del Sistema Operativo UNIX
 
 ---
+## 1. Motivación K&R
+A lo largo de tu formación en C, te has apoyado en las bibliotecas estándar como \`<stdio.h>\` o \`<stdlib.h>\`. Has llamado a \`printf\` y \`malloc\` asumiendo que "mágicamente" el texto aparece en la terminal y la memoria aparece de la nada. 
 
-## 1. INTRODUCCIÓN
-
-A lo largo del curso, hemos utilizado las bibliotecas del estándar \`stdio.h\` o \`stdlib.h\`. Pero, ¿qué hay más abajo? ¿Cómo pide C memoria o guarda un archivo realmente?
-
-Este capítulo final se sumerge al nivel más bajo posible. Estudiaremos la **interfaz real** entre los programas en C y el sistema operativo UNIX (y derivados como Linux/macOS). Las rutinas estándar (como \`printf\` o \`fopen\`) en realidad no son más que abstracciones amigables (wrappers) que por debajo están llamando a primitivas crudas del núcleo (Kernel).
+Dennis Ritchie no creó C solo para escribir aplicaciones; lo creó para escribir el mismísimo sistema operativo UNIX. Por tanto, C provee mecanismos crudos y directos para hablar con el Kernel. El Capítulo 8 de K&R retira el velo de la biblioteca estándar, enfrentándote cara a cara con las "Llamadas al Sistema" (System Calls). Aquí descubres que \`malloc\` no es magia, sino un algoritmo que tú mismo puedes programar usando listas enlazadas sobre un trozo crudo de RAM.
 
 ---
+## 2. Explicación Teórica Ampliada
 
-## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+### User Space vs Kernel Space y System Calls
+Los programas que escribes corren en el anillo de protección más bajo (*User Space*). Si tu programa intenta leer el disco duro directamente, el procesador lanza una excepción y te aniquila (*Segmentation Fault*). Para interactuar con el mundo físico, debes hacer una interrupción especial de software: una **System Call**. Le entregas una solicitud al Kernel (*Kernel Space*, altos privilegios) y esperas que él realice la operación.
 
-### 2.1 El Espacio de Usuario y el Concepto de System Call
-Una CPU moderna opera en anillos de protección. Los programas creados por ti se ejecutan en *User Space* (bajos privilegios). Si deseas leer el disco duro o enviar un byte a la pantalla, no puedes hacerlo directamente en hardware. Debes ejecutar una instrucción especial (una interrupción trampa o \`syscall\`) solicitando que el Kernel (*Kernel Space*, altos privilegios) lo haga por ti.
-Una **System Call** (\`read\`, \`write\`, \`sbrk\`) es una interrupción de hardware organizada que le pide al Kernel realizar un trabajo en su nombre.
+### Descriptores de Archivo de Bajo Nivel
+En UNIX, "todo es un archivo": el teclado, la terminal, las impresoras y los sockets de red. 
+Cuando tu programa en C inicia, el Kernel ya abre automáticamente tres descriptores (enteros que indexan una tabla en el Kernel):
+*   **\`0\` (stdin):** Entrada estándar (teclado).
+*   **\`1\` (stdout):** Salida estándar (pantalla).
+*   **\`2\` (stderr):** Error estándar (pantalla, sin buffer, útil para alertas).
 
-### 2.2 Descriptores de Archivo de Bajo Nivel (\`0\`, \`1\`, \`2\`)
-En el sistema UNIX, **todo es un archivo**: teclado, pantalla, red, discos impresoras y tuberías. Al arrancar tu binario de C, el Kernel ya abre automáticamente tres descriptores (índices enteros):
-* **0 (Standard Input)**: Típicamente vinculado al teclado de tu terminal.
-* **1 (Standard Output)**: Típicamente vinculado a la pantalla.
-* **2 (Standard Error)**: Diagnóstico y errores, también vinculado a la pantalla incluso si \`stdout\` es redirigido con \`>\`.
-
-Para hacer un I/O de bajo nivel en UNIX, se evitan \`fopen\` y \`fread\`. En su lugar, se utilizan \`open\`, \`read\` y \`write\`.
+Las System Calls crudas evitan el uso de los cómodos punteros \`FILE*\` y operan directo con estos enteros:
 \`\`\`c
-#include <unistd.h> // Cabecera estándar POSIX UNIX
-
-int fd = open("datos.bin", O_RDONLY);
+#include <unistd.h>
 char buffer[1024];
-int n_bytes_leidos = read(fd, buffer, sizeof(buffer));
-write(1, buffer, n_bytes_leidos); // Escribe directamente al descriptor 1 (stdout)
-\`\`\`
-Estas funciones no proveen ni almacenamiento en búfer intermedio (buffering), ni conversión a cadenas, ni mapeos. Mueven bytes crudos desde y hacia la RAM del proceso al hardware lo más rápido que la física permite.
-
-### 2.3 Entendiendo a fondo el Asignador de Memoria (\`malloc\`)
-Cuando declaras una variable local (\`int x;\`), ésta vive en el **Stack** (pila), que crece ordenadamente y se auto-libera. Pero cuando el tamaño de tus datos no se conoce hasta la ejecución (ej: leer todos los píxeles de una imagen), debes solicitar memoria al **Heap**.
-
-\`malloc\` no es parte del Sistema Operativo. Es una función de C escrita en la librería \`stdlib\`. \`malloc\` gestiona un inmenso bloque de memoria continua que el OS le concedió con la system call \`sbrk()\`.
-
-#### ¿Cómo funciona malloc y free por dentro? (El algoritmo de K&R)
-El Heap es gestionado como una lista vinculada circular (Linked List) de bloques de memoria vacíos o en uso.
-Cuando invocas \`p = malloc(100)\`:
-1. \`malloc\` escanea esta lista en busca de un "agujero" contiguo de memoria de 100 bytes (con políticas como *First Fit* o *Best Fit*).
-2. Si lo encuentra, corta el agujero y te entrega el puntero.
-3. ¡CRÍTICO! \`malloc\` en realidad recorta 100 bytes **+ tamaño de una cabecera oculta (Header)**. Este Header se coloca justo *antes* del byte al que apunta \`p\`. El Header indica silenciosamente cuántos bytes ocupa este bloque en realidad, para que \`free(p)\` sepa cuánta memoria recuperar.
-
-\`\`\`c
-// Anatomía oculta del puntero que recibes:
-[ Tamaño Real | Siguiente Nodo ] <- El HEADER secreto de malloc
-[  ... Memoria Usable de 100 bytes ...  ] <- Lo que recibe el programador (puntero 'p')
+// Lee del descriptor 0 (teclado)
+int leidos = read(0, buffer, sizeof(buffer));
+// Escribe crudo al descriptor 1 (pantalla)
+write(1, buffer, leidos);
 \`\`\`
 
-#### Los peligros del Heap
-Si se escribe más allá de los límites de un arreglo dinámico reservado con \`malloc()\`, se sobrescribirá la estructura \`Header\` del bloque contiguo, provocando un colapso catastrófico (*Segmentation Fault*) al invocar \`free()\`. Esta es la famosa vulnerabilidad de **Heap Buffer Overflow**.
+### El Algoritmo detrás de \`malloc\` (Free List)
+\`malloc\` es una función en User Space, no una System Call. Pide un bloque gigantesco de memoria al Kernel (usando \`sbrk()\` o \`mmap()\`), y luego lo "lotea" y revende en pedazos más pequeños a tu programa.
 
-### 2.4 Directorios y Metadatos de Inodos (Struct stat)
-Finalmente, UNIX trata los directorios simplemente como un archivo ordinario de tipo especial, cuyo contenido es una matriz tabular de nombres de archivos asociados a un **Inodo** (el número de identidad real de los archivos en disco).
-Las llamadas al sistema \`stat(nombre, &struct)\` permiten, en un solo golpe de I/O, rellenar una gran estructura con la fecha de modificación, el propietario (UID), los permisos rwx, y el tamaño masivo del disco. Es el corazón subyacente de la instrucción bash \`ls -l\`.`,
+K&R implementan \`malloc\` manteniendo una **Lista Libre Circular** (Free List) de los pedazos de memoria que no están en uso. 
+Cuando haces \`malloc(100)\`:
+1.  Busca un bloque libre en la lista que tenga al menos 100 bytes (First Fit).
+2.  Le recorta los 100 bytes y te devuelve un puntero.
+3.  **El secreto mortal:** Justo *antes* del puntero que te entrega, \`malloc\` esconde una cabecera de metadatos (Header) que dice "este bloque es de 100 bytes". Así, cuando llamas a \`free(p)\`, el sistema lee la cabecera hacia atrás y sabe cuánta memoria reclamar.
+
+---
+## 3. Complejidad Asintótica de las Llamadas Crudas
+
+| Operación | System Call | Complejidad | Notas |
+| :--- | :--- | :--- | :--- |
+| **I/O Crudo** | \`read / write\` | $O(B)$ | El tiempo depende de los $B$ bytes copiados y el bus físico del hardware. |
+| **Reposición** | \`lseek\` | $O(1)$ | Salto directo de un puntero en una estructura del Kernel, independientemente del tamaño del archivo. |
+| **Reservar Heap** | \`sbrk\` | $O(1)$ | Solo mueve el "program break" (el límite superior del Heap del proceso) en el Kernel. |
+| **Asignar Memoria** | \`malloc\` (K&R) | $O(N)$ peor caso | $N$ es el número de bloques fragmentados en la Free List, ya que hace una búsqueda lineal (First-Fit). |
+| **Liberar Memoria** | \`free\` (K&R) | $O(N)$ peor caso | Busca el punto correcto en la Free List para re-insertar y fusionar (coalesce) bloques adyacentes. |
+
+---
+## 4. Aplicaciones en la Industria
+
+*   **Motores de Bases de Datos:** PostgreSQL o SQLite rara vez usan el \`malloc\` o el \`fwrite\` estándar. Prefieren pedir bloques crudos al OS y administrar su propio "Memory Pool" y "Page Cache" para exprimir el rendimiento.
+*   **Servidores Web de Alta Concurrencia:** Nginx o Redis utilizan System Calls avanzadas de I/O (como \`epoll\` en Linux) operando exclusivamente sobre descriptores crudos para manejar miles de peticiones simultáneas sin bloqueo.
+*   **Microcontroladores y Sistemas Embebidos:** Cuando programas componentes sin un Sistema Operativo completo (Bare Metal), a menudo debes programar tu propio \`malloc\` para administrar la poca RAM (SRAM) disponible en el chip, basándote exactamente en la técnica de la lista de K&R.
+
+---
+## 5. Gotchas y Errores Letales (C/C++)
+
+*   **El Infame "Heap Buffer Overflow":** Si reservas un arreglo de 10 bytes y escribes en la posición 11, estás corrompiendo la cabecera (Header secreto) del siguiente bloque de \`malloc\`. El programa seguirá "funcionando" hasta que intentes hacer \`free()\` y la tabla corrupta cause un Segmentation Fault cataclísmico incomprensible.
+*   **Doble Liberación (Double Free):** Llamar a \`free(p)\` dos veces sobre el mismo puntero destruye por completo la integridad de la Free List circular, típicamente permitiendo vulnerabilidades de ciberseguridad catastróficas donde un atacante puede ejecutar código arbitrario.
+*   **Fugas de Descriptores (File Descriptor Leak):** Al igual que la memoria RAM, los descriptores (\`0, 1, 2, 3, 4...\`) son recursos finitos del Kernel. Si haces \`open()\` y olvidas hacer \`close()\`, el proceso eventualmente se quedará sin descriptores y fallará (Error \`EMFILE: Too many open files\`).
+
+---
+## 6. Glosario Técnico
+
+*   **System Call (Syscall):** La interfaz fundamental entre una aplicación en User Space y el Kernel de UNIX.
+*   **User Space / Kernel Space:** Separación estricta de memoria virtual y privilegios de CPU impuesta por el hardware moderno.
+*   **Descriptor de Archivo (File Descriptor):** Un pequeño número entero no negativo devuelto por el Kernel, usado como índice abstracto para identificar I/O (archivos, sockets, tuberías).
+*   **Free List:** La estructura de datos interna que utiliza \`malloc\` para rastrear huecos de memoria disponibles en el Heap.
+*   **Program Break:** La dirección virtual más alta del Heap de un proceso; incrementado por \`sbrk()\`.
+
+---
+## 7. Referencias Clásicas
+
+*   **Cormen et al. (CLRS):** Las listas enlazadas y la gestión dinámica subyacente son equivalentes a los diccionarios elementales de los capítulos introductorios.
+*   **Brian W. Kernighan & Dennis M. Ritchie, "The C Programming Language":** Capítulo 8 (La Interfaz del Sistema UNIX), subsecciones 8.2 (Lectura y Escritura de bajo nivel) y 8.7 (Un asignador de almacenamiento - \`malloc\`).`,
     codeExamples: [
       {
         title: '1. Simulación de Reserva Dinámica y Liberación en el Heap',
