@@ -1,0 +1,163 @@
+import re
+
+with open('src/data/coursesData.ts', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+new_taller2 = r"""    id: 'taller-2',
+    number: 2,
+    type: 'workshop',
+    title: 'Taller 2 – Análisis Asintótico y Recurrencias (Taller Obligatorio)',
+    topic: 'Identificación de complejidad algorítmica y resolución de recurrencias de Divide y Vencerás',
+    cormenChapter: 'Taller Práctico sobre Cap 3 y 4',
+    durationMinutes: 45,
+    summary: 'Consolida tu habilidad para aplicar notación asintótica y el Método Maestro a problemas reales de código y ecuaciones recursivas.',
+    theoryContent: `## 1. Introducción al Taller
+En este espacio práctico, pondremos a prueba los conceptos teóricos adquiridos en las clases anteriores. El objetivo es que desarrolles la intuición necesaria para mirar un bloque de código en C y deducir su complejidad asintótica al instante, así como dominar la resolución rápida de ecuaciones de recurrencia mediante el Teorema Maestro. No repasaremos la teoría formal de las cotas $\Theta$ ni las demostraciones por inducción; aquí nos enfocaremos estrictamente en el reconocimiento de patrones y en la aplicación directa sobre código.
+
+## 2. Recurrencias para Resolver
+Aplica el Teorema Maestro (Cormen Cap. 4) para las siguientes ecuaciones. Identifica $a$, $b$, y $f(n)$, y calcula el valor crítico de las hojas $n^{\log_b a}$ para determinar en qué caso recaen.
+
+**A) Caso 1: El Árbol Domina**
+$$T(n) = 4T(n/2) + n$$
+*   **Análisis:** $a=4$, $b=2$, $f(n)=n$. El costo acumulado en las hojas es $n^{\log_2 4} = n^2$.
+*   **Decisión:** Como $f(n) = n$ es asintóticamente (y polinomialmente) menor que $n^2$, el esfuerzo de subdividir el problema sepulta al esfuerzo local.
+*   **Solución:** $\Theta(n^2)$.
+
+**B) Caso 2: Equilibrio Perfecto**
+$$T(n) = 2T(n/2) + n$$
+*   **Análisis:** $a=2$, $b=2$, $f(n)=n$. El costo de las hojas es $n^{\log_2 2} = n$.
+*   **Decisión:** $f(n)$ crece a la misma tasa exacta que las hojas. El trabajo está balanceado en todos los niveles del árbol.
+*   **Solución:** Multiplicamos por la altura del árbol ($\log n$), resultando en $\Theta(n \log n)$.
+
+**C) Caso 3: La Raíz Domina**
+$$T(n) = T(n/2) + n^2$$
+*   **Análisis:** $a=1$, $b=2$, $f(n)=n^2$. El costo crítico es $n^{\log_2 1} = n^0 = 1$.
+*   **Decisión:** El trabajo local $f(n) = n^2$ es polinomialmente inmenso en comparación con el costo de dividir ($1$). Debemos validar la Condición de Regularidad: $a \cdot f(n/b) \le c \cdot f(n) \implies 1 \cdot (n/2)^2 \le c \cdot n^2 \implies n^2/4 \le c \cdot n^2$, lo cual es cierto para $c=1/4 < 1$.
+*   **Solución:** $\Theta(n^2)$.
+
+**D) El Límite del Teorema Maestro**
+$$T(n) = 2T(n/2) + \frac{n}{\log n}$$
+*   **Análisis:** $a=2$, $b=2$, $f(n) = n / \log n$. El costo de hojas es $n$.
+*   **Decisión:** Aunque $f(n)$ es menor que $n$, la diferencia es logarítmica, NO polinomial (no podemos encontrar un $\epsilon > 0$ tal que $f(n) = O(n^{1-\epsilon})$).
+*   **Solución:** El Teorema Maestro **falla** aquí. Como se mencionó en la Clase 9, debes recurrir al Método de Sustitución o al Árbol de Recursión para llegar a la cota real de $\Theta(n \log \log n)$.
+
+## 3. Análisis de Código C Real
+Determina la complejidad asintótica de los siguientes fragmentos. Busca identificar qué variables dictan el tamaño de la entrada ($n$) y cómo avanzan los contadores.
+
+**Fragmento A: Incremento Multiplicativo**
+\`\`\`c
+int count = 0;
+for (int i = 1; i < n; i = i * 2) {
+    count++;
+}
+\`\`\`
+*   **Complejidad:** $\Theta(\log n)$.
+*   **Justificación:** La variable de iteración \`i\` se duplica en cada paso ($1, 2, 4, 8...$). Solo tomará $\log_2 n$ pasos alcanzar el valor de $n$.
+
+**Fragmento B: Bucles Anidados Dependientes**
+\`\`\`c
+int sum = 0;
+for (int i = 0; i < n; i++) {
+    for (int j = i; j < n; j++) {
+        sum++;
+    }
+}
+\`\`\`
+*   **Complejidad:** $\Theta(n^2)$.
+*   **Justificación:** El bucle interno no hace $n$ pasos fijos. Hace $n$, luego $n-1$, luego $n-2$... Esta progresión aritmética suma $n(n+1)/2$, cuyo término dominante es polinomial cuadrático.
+
+**Fragmento C: Falsa Alarma (Secuenciales)**
+\`\`\`c
+int count = 0;
+for (int i = 0; i < n; i++) { count++; }
+for (int k = 0; k < n; k++) { count++; }
+\`\`\`
+*   **Complejidad:** $\Theta(n)$.
+*   **Justificación:** Son dos bucles de tiempo lineal secuenciales, no anidados. $\Theta(n) + \Theta(n) = \Theta(2n)$. Se ignora la constante $2$ por la regla del producto.
+
+## 4. Glosario y Materiales de Apoyo
+*   **Condición de Regularidad:** Exigencia matemática para el Caso 3 del Teorema Maestro. Asegura que el costo de los subproblemas decrezca consistentemente en cada nivel de recursión.
+*   **Brecha Polinomial:** Para aplicar el Caso 1 o 3, la diferencia entre $f(n)$ y el costo en hojas debe ser por un factor multiplicativo de $n^{\epsilon}$.
+*   **Enlaces conceptuales:** Repasa la **Clase 8** para asentar las reglas empíricas de los bucles, y la **Clase 9** para las demostraciones formales de sustitución.`,
+    visualizerType: 'none',
+    checkQuestions: [
+        {
+            id: 'qt2-1',
+            question: '¿A qué caso del Método Maestro pertenece $T(n) = 2T(n/2) + O(n)$ y cuál es su solución?',
+            options: [
+                'Caso 1, solución $\Theta(n)$',
+                'Caso 2 (Empate), solución $\Theta(n \log n)$',
+                'Caso 3, solución $\Theta(n^2)$',
+                'No se puede aplicar el Teorema Maestro'
+            ],
+            correctIndex: 1,
+            explanation: '¡Excelente! En esta recurrencia (típica de Merge Sort), $a=2, b=2$ y el costo crítico es $n^{\log_2 2} = n$. Como $f(n) = O(n)$ crece a la misma tasa, es un empate (Caso 2) y agregamos el factor multiplicativo $\log n$.',
+            analogousExplanation: 'Como en una empresa donde la carga de trabajo en la sede principal ($n$) pesa exactamente igual que la carga sumada de todas las sucursales hijas combinadas. Multiplicamos el peso de un nivel por la cantidad total de jerarquías ($\log n$).'
+        },
+        {
+            id: 'qt2-2',
+            question: 'Dada la recurrencia $T(n) = 3T(n/3) + n^2$, ¿cuál es su complejidad final?',
+            options: [
+                '$\Theta(n)$',
+                '$\Theta(n \log n)$',
+                '$\Theta(n^2)$',
+                '$\Theta(n^3)$'
+            ],
+            correctIndex: 2,
+            explanation: '¡Muy bien! Aquí $a=3, b=3$. El costo de hojas es $n^{\log_3 3} = n$. Dado que $f(n)=n^2$ es estrictamente mayor que $n$ en un factor polinomial de $n$, la raíz domina el tiempo (Caso 3), dando como resultado $\Theta(n^2)$.',
+            analogousExplanation: 'Dividir en 3 es barato, pero unir esas tres partes cuesta un esfuerzo desproporcionado al cuadrado. Ese gran esfuerzo al inicio del proceso opaca todo lo demás.'
+        },
+        {
+            id: 'qt2-3',
+            question: '¿Por qué la ecuación $T(n) = 2T(n/2) + \frac{n}{\log n}$ NO se resuelve directamente con el Teorema Maestro clásico?',
+            options: [
+                'Porque $f(n)$ tiene una división.',
+                'Porque la recursión no es válida.',
+                'Porque la diferencia entre $f(n)$ y $n^{\log_b a}$ no es estrictamente polinomial, es solo logarítmica.',
+                'Porque incumple la condición de regularidad.'
+            ],
+            correctIndex: 2,
+            explanation: 'Correcto. El Teorema Maestro clásico exige una diferencia polinomial ($n^{\epsilon}$). En este caso, $f(n) = n / \log n$ es menor que $n$, pero la diferencia carece de esa separación polinomial, cayendo en un hueco del teorema.',
+            analogousExplanation: 'Es como intentar usar una regla métrica para medir células. La herramienta (Teorema Maestro) es demasiado tosca para registrar diferencias sutiles (logarítmicas), necesitas un microscopio (Método de Sustitución).'
+        },
+        {
+            id: 'qt2-4',
+            question: 'Analiza el bucle: `for(int i = 0; i < n; i++) { for(int j = 0; j < 1000000; j++) { x++; } }`. ¿Cuál es su complejidad asintótica?',
+            options: [
+                '$\Theta(n^2)$ porque hay dos bucles.',
+                '$\Theta(n)$ porque el bucle interno hace un número constante de iteraciones independientes de n.',
+                '$\Theta(\log n)$ porque 1,000,000 es muy grande.',
+                '$\Theta(n \log n)$'
+            ],
+            correctIndex: 1,
+            explanation: '¡Perfecto! Aunque $1,000,000$ parece enorme, asintóticamente es solo un valor constante multiplicativo $O(1)$. $\Theta(1,000,000 \\times n)$ se simplifica a $\Theta(n)$ según las reglas asintóticas de dominancia.',
+            analogousExplanation: 'Caminar $n$ pasos cargando un saco de 1 kilo o uno de 10 kilos sigue siendo escalar linealmente respecto a los pasos ($n$). La mochila constante no cambia la escala.'
+        },
+        {
+            id: 'qt2-5',
+            question: '¿Qué garantiza la Condición de Regularidad ($a \cdot f(n/b) \le c \cdot f(n)$) del Caso 3 del Teorema Maestro?',
+            options: [
+                'Que el algoritmo siempre termine (no haya bucles infinitos).',
+                'Que el hardware soporte la ejecución.',
+                'Que el esfuerzo computacional descienda consistentemente nivel a nivel, garantizando que el nivel superior de verdad es el cuello de botella.',
+                'Que los arreglos no tengan tamaño negativo.'
+            ],
+            correctIndex: 2,
+            explanation: 'Correcto. Para afirmar que la "raíz domina" todo el árbol, no basta con ser mayor que las hojas, debe existir una constante fraccionaria $c < 1$ que compruebe que al descender en el árbol, la suma total de trabajo por nivel disminuye constantemente.',
+            analogousExplanation: 'Garantiza que la estructura piramidal sea sólida: el gerente (raíz) gana más de forma consistente que la suma del salario de todos sus subordinados directos combinados.'
+        }
+    ],
+    exercises: [],
+    prevItemId: 'clase-9'
+  }"""
+
+new_taller2 = new_taller2.replace('\\', '\\\\')
+
+pattern = r"    id: 'taller-2',.*?(?=  \{\n    id: 'clase-10',)"
+
+content_new = re.sub(pattern, new_taller2 + ",\n", content, flags=re.DOTALL)
+
+with open('src/data/coursesData.ts', 'w', encoding='utf-8') as f:
+    f.write(content_new)
+
+print("done")

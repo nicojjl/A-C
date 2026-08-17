@@ -1,0 +1,211 @@
+}
+
+/**
+ * High-Precision Browser C & Algorithmic Code Interpreter & Evaluator
+ */
+export function executeCCodeInBrowser(
+  cCode: string,
+  args: any[] = []
+): CExecutionResult {
+  const startTime = performance.now();
+  const stdoutBuffer: string[] = [];
+
+  // Robust C printf implementation for captured stdout
+  const printf = (format: string, ...vals: any[]) => {
+    if (typeof format !== 'string') {
+      stdoutBuffer.push(String(format));
+      return;
+    }
+    let valIdx = 0;
+    const formatted = format.replace(
+      /%(-?\d*)?(\.\d+)?([difsucgxX]|ld|lld|lf|hd|hu|llu)/g,
+      (match, width, precision, type) => {
+        if (valIdx >= vals.length) return match;
+        const val = vals[valIdx++];
+        if (type === 'f' || type === 'lf') {
+          const num = Number(val);
+          if (precision) {
+            const digits = parseInt(precision.replace('.', ''), 10);
+            const str = num.toFixed(digits);
+            if (width) {
+              const minW = Math.abs(parseInt(width, 10));
+              return width.startsWith('-') ? str.padEnd(minW, ' ') : str.padStart(minW, ' ');
+            }
+            return str;
+          }
+          const str = String(num);
+          if (width) {
+            const minW = Math.abs(parseInt(width, 10));
+            return width.startsWith('-') ? str.padEnd(minW, ' ') : str.padStart(minW, ' ');
+          }
+          return str;
+        } else if (
+          type === 'd' ||
+          type === 'i' ||
+          type === 'ld' ||
+          type === 'lld' ||
+          type === 'u' ||
+          type === 'hd' ||
+          type === 'hu' ||
+          type === 'llu'
+        ) {
+          const num = Math.trunc(Number(val));
+          const str = String(num);
+          if (width) {
+            const minW = Math.abs(parseInt(width, 10));
+            return width.startsWith('-') ? str.padEnd(minW, ' ') : str.padStart(minW, ' ');
+          }
+          return str;
+        } else if (type === 'c') {
+          return typeof val === 'number' ? String.fromCharCode(val) : String(val);
+        } else if (type === 's') {
+          const str = String(val);
+          if (width) {
+            const minW = Math.abs(parseInt(width, 10));
+            return width.startsWith('-') ? str.padEnd(minW, ' ') : str.padStart(minW, ' ');
+          }
+          return str;
+        }
+        return String(val);
+      }
+    );
+    stdoutBuffer.push(formatted);
+  };
+
+  const putchar = (ch: any) => {
+    if (typeof ch === 'number') {
+      stdoutBuffer.push(String.fromCharCode(ch));
+    } else {
+      stdoutBuffer.push(String(ch));
+    }
+  };
+
+  const puts = (str: string) => {
+    stdoutBuffer.push(String(str) + '\n');
+  };
+
+  try {
+    let js = cCode;
+
+    // 1. Remove preprocessor directives
+    js = js.replace(/#include\s*<[^>]+>/g, '');
+    js = js.replace(/#include\s*"[^"]+"/g, '');
+
+    // 2. Process #define constants
+    js = js.replace(/#define\s+([A-Za-z0-9_]+)\s+(.+)/g, 'const $1 = $2;');
+
+    // 3. Remove struct definitions
+    js = js.replace(/struct\s+[A-Za-z0-9_]+\s*\{[^}]*\};/g, '');
+
+    // 4. Map C math built-ins
+    js = js.replace(/\bpow\s*\(/g, 'Math.pow(');
+    js = js.replace(/\blog2\s*\(/g, 'Math.log2(');
+    js = js.replace(/\bfloor\s*\(/g, 'Math.floor(');
+    js = js.replace(/\bceil\s*\(/g, 'Math.ceil(');
+    js = js.replace(/\babs\s*\(/g, 'Math.abs(');
+    js = js.replace(/\bfabs\s*\(/g, 'Math.abs(');
+    js = js.replace(/\bsqrt\s*\(/g, 'Math.sqrt(');
+
+    // 5. Transform C primitive type declarations
+    js = js.replace(
+      /\b(const\s+)?(unsigned\s+|signed\s+)?(int|double|float|char\*|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*=/g,
+      'let $4 ='
+    );
+    js = js.replace(
+      /\b(const\s+)?(unsigned\s+|signed\s+)?(int|double|float|char\*|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*;/g,
+      'let $4;'
+    );
+
+    // 6. Loops type declarations
+    js = js.replace(
+      /for\s*\(\s*(unsigned\s+|signed\s+)?(int|double|float|long\s+long|long|short|size_t)\s+/g,
+      'for (let '
+    );
+
+    // 7. Castings
+    js = js.replace(/\((float|double|int|long\s+long|char|short)\)/g, 'Number');
+
+    // 8. Transform C functions to JS
+    let mainFuncName = '';
+    let firstFuncName = '';
+
+    js = js.replace(
+      /^(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char\*|char|bool|long\s+long|long|short|void|size_t)\s+([a-zA-Z0-9_$]+)\s*\(([^)]*)\)\s*\{/gm,
+      (match, fnName, params) => {
+        if (fnName === 'main') mainFuncName = 'main';
+        if (!firstFuncName) firstFuncName = fnName;
+
+        const cleanParams = params
+          .split(',')
+          .map((p: string) => {
+            let param = p.trim();
+            if (!param) return '';
+            param = param.replace(
+              /^(const\s+)?(struct\s+)?(unsigned\s+|signed\s+)?[a-zA-Z0-9_]+\s*\*?\s*/,
+              ''
+            );
+            param = param.replace(/\[\]/g, '');
+            return param.trim();
+          })
+          .filter(Boolean)
+          .join(', ');
+
+        return `function ${fnName}(${cleanParams}) {`;
+      }
+    );
+
+    // Construct evaluator Function
+    const evaluator = new Function(
+      'printf',
+      'putchar',
+      'puts',
+      'EOF',
+      'NULL',
+      'DENTRO',
+      'FUERA',
+      `
+      ${js}
+
+      if (typeof ${mainFuncName || 'undefined'} === 'function') {
+        return main();
+      }
+      if (typeof ${firstFuncName || 'undefined'} === 'function') {
+        return ${firstFuncName}(...arguments[7]);
+      }
+      return undefined;
+      `
+    );
+
+    const retVal = evaluator(printf, putchar, puts, -1, null, 1, 0, args);
+    const endTime = performance.now();
+
+    return {
+      success: true,
+      stdout: stdoutBuffer.join(''),
+      returnValue: retVal,
+      executionTimeMs: Math.round((endTime - startTime) * 10) / 10,
+    };
+  } catch (err: any) {
+    const endTime = performance.now();
+    return {
+      success: false,
+      stdout: stdoutBuffer.join(''),
+      returnValue: undefined,
+      error: err?.message || 'Error de compilación o ejecución en C.',
+      executionTimeMs: Math.round((endTime - startTime) * 10) / 10,
+    };
+  }
+}
+
+export const ExercisePlayground: React.FC<ExercisePlaygroundProps> = ({
+  exercise,
+  exercises,
+  onSolved,
+}) => {
+  const allExercises = exercises || (exercise ? [exercise] : []);
+  const [selectedIdx, setSelectedIdx] = useState<number>(0);
+
+  const activeExercise = allExercises[selectedIdx] || allExercises[0];
+
+  const [code, setCode] = useState<string>(activeExercise?.initialCode || '');
+  const [testResults, setTestResults] = useState<
