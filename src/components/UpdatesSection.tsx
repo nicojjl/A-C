@@ -3,7 +3,7 @@ import { Megaphone, Sparkles, ChevronDown, ChevronUp, Calendar, Tag, CheckCircle
 import { APP_UPDATES, AppUpdate } from '../data/updatesData';
 import { motion, AnimatePresence } from 'motion/react';
 
-export const UpdatesSection: React.FC<{ onOpenCCourse?: () => void }> = ({ onOpenCCourse }) => {
+export const UpdatesSection: React.FC<{ onOpenCCourse?: () => void, onOpenCChapter?: (chapterId: string) => void }> = ({ onOpenCCourse, onOpenCChapter }) => {
   const [expandedId, setExpandedId] = useState<string>('update-v3.1');
 
   const toggleExpand = (id: string) => {
@@ -136,9 +136,22 @@ export const UpdatesSection: React.FC<{ onOpenCCourse?: () => void }> = ({ onOpe
                             <span 
     dangerouslySetInnerHTML={{ __html: highlight }} 
     onClick={(e) => {
-      if (e.target instanceof HTMLAnchorElement && e.target.getAttribute('href') === '#playground') {
-        e.preventDefault();
-        if (onOpenCCourse) onOpenCCourse();
+      if (e.target instanceof HTMLAnchorElement) {
+        const href = e.target.getAttribute('href');
+        if (href === '#playground' && onOpenCCourse) {
+          e.preventDefault();
+          onOpenCCourse();
+        } else if (href?.startsWith('#c-course-') && onOpenCChapter) {
+          e.preventDefault();
+          const chapterId = href.replace('#c-course-', '');
+          onOpenCChapter(chapterId);
+          setTimeout(() => {
+            const playground = document.getElementById('playground');
+            if (playground) {
+              playground.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 300);
+        }
       }
     }}
   />

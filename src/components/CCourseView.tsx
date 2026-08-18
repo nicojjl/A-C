@@ -691,7 +691,7 @@ export const CCourseView: React.FC<CCourseViewProps> = ({
             className="space-y-6"
           >
             {currentChapter.exercises && currentChapter.exercises.length > 0 ? (
-              <ExercisePlayground exercises={currentChapter.exercises} />
+              <div id="playground"><ExercisePlayground exercises={currentChapter.exercises} /></div>
             ) : (
               <div className="p-8 text-center text-xs text-[#8C8882] bg-[#F9F8F6] rounded-xl">
                 No hay ejercicios asignados a este capítulo.
