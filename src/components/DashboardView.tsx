@@ -25,6 +25,7 @@ interface DashboardViewProps {
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
+  onSelectCChapter,
   courses,
   completedItemIds,
   onSelectClass,
@@ -75,7 +76,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* 5 Main Entry Tiles / Viñetas Centradas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {/* TILE 1: ALGORITMOS */}
           <motion.div
             whileHover={{ y: -6, transition: { duration: 0.2 } }}
@@ -172,114 +173,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </motion.div>
 
-          {/* TILE 4: CERTÁMENES Y PAUTAS USM (DESTACADO) */}
-          <motion.div
-            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+          
+        </div> {/* End of main 3 tiles grid */}
+        
+        
+        {/* Secondary Navigation Bar */}
+        <div className="max-w-4xl mx-auto mt-8 mb-8 border-t border-[#E5E2DE] pt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-6">
+          <button
             onClick={handleCertamenesClick}
-            className="bg-[#FFF7ED] border-2 border-[#C2410C] rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between group space-y-4 relative overflow-hidden"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#E5E2DE] bg-white hover:bg-[#F9F8F6] hover:border-[#C2410C] text-xs font-semibold text-[#4A4742] hover:text-[#1A1A1A] transition-colors"
           >
-            <div className="space-y-3">
-              <div className="w-11 h-11 rounded-2xl bg-[#C2410C] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                <FileText className="w-5 h-5" />
-              </div>
-
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-mono font-bold text-[#C2410C] bg-white px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-[#FDBA74] inline-block">
-                  Descargar / Ver PDF
-                </span>
-                <h2 className="text-lg font-serif font-bold text-[#1A1A1A] group-hover:text-[#C2410C] transition-colors">
-                  Certámenes &amp; PDF's
-                </h2>
-                <p className="text-xs text-[#4A4742] leading-relaxed">
-                  6 Pruebas reales con soluciones en C99, pautas oficiales y exportación directa en formato PDF.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-[#FDBA74] flex items-center justify-between text-xs font-bold text-[#C2410C] group-hover:translate-x-1 transition-transform">
-              <span className="text-[11px] font-mono font-bold">Abrir Banco de PDF's &amp; Pruebas</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </motion.div>
-
-          {/* TILE 5: LEADERBOARD & XP LOGROS */}
-          <motion.div
-            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            <FileText className="w-4 h-4 text-[#C2410C]" />
+            <span>Certámenes & PDF's</span>
+          </button>
+          
+          <button
             onClick={() => onOpenLeaderboard && onOpenLeaderboard()}
-            className="bg-[#FFF7ED]/60 border-2 border-[#FDBA74] hover:border-[#C2410C] rounded-3xl p-5 shadow-xs hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between group space-y-4 relative overflow-hidden"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#E5E2DE] bg-white hover:bg-[#F9F8F6] hover:border-[#FDBA74] text-xs font-semibold text-[#4A4742] hover:text-[#1A1A1A] transition-colors"
           >
-            <div className="space-y-3">
-              <div className="w-11 h-11 rounded-2xl bg-[#1A1A1A] border border-[#33312E] flex items-center justify-center text-[#FDBA74] group-hover:scale-110 transition-transform shadow-xs">
-                <Trophy className="w-5 h-5" />
-              </div>
+            <Trophy className="w-4 h-4 text-[#FDBA74]" />
+            <span>Ránking & Logros</span>
+          </button>
 
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-mono font-bold text-[#C2410C] bg-white px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-[#FDBA74] inline-flex items-center gap-1">
-                  <Flame className="w-3 h-3 text-[#EF4444] fill-current" />
-                  Racha: {streakDays}d • Lvl {userLevel}
-                </span>
-                <h2 className="text-lg font-serif font-bold text-[#1A1A1A] group-hover:text-[#C2410C] transition-colors">
-                  Ránking &amp; Logros
-                </h2>
-                <p className="text-xs text-[#4A4742] leading-relaxed">
-                  Compite en la tabla de clasificación con tus puntos XP ({userXP} XP).
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-[#FDBA74]/50 flex items-center justify-between text-xs font-bold text-[#C2410C] group-hover:translate-x-1 transition-transform">
-              <span className="flex items-center gap-1 font-mono text-[11px]">
-                <Award className="w-4 h-4 text-[#C2410C]" />
-                Clasificación
-              </span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Herramientas de Práctica y Repaso */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto gap-5 mt-5">
-          {/* TILE 7: LABORATORIOS */}
-          <motion.div
-            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+          <button
             onClick={() => onOpenLaboratories && onOpenLaboratories()}
-            className="group relative bg-white border-2 border-[#E5E2DE] hover:border-[#10B981] rounded-2xl p-6 cursor-pointer overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center h-full"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#E5E2DE] bg-white hover:bg-[#F9F8F6] hover:border-[#10B981] text-xs font-semibold text-[#4A4742] hover:text-[#1A1A1A] transition-colors"
           >
-            <div className="absolute inset-0 bg-[#ECFDF5] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="w-16 h-16 rounded-full bg-[#ECFDF5] flex items-center justify-center mb-4 relative z-10 group-hover:scale-110 transition-transform duration-300">
-              <Terminal className="w-8 h-8 text-[#10B981]" />
-            </div>
-            <h3 className="font-serif font-bold text-[#1A1A1A] text-lg mb-2 relative z-10">
-              Laboratorios
-            </h3>
-            <p className="text-[#8C8882] text-xs font-mono relative z-10 leading-relaxed line-clamp-3">
-              Proyectos guiados paso a paso para aplicar tus conocimientos.
-            </p>
-          </motion.div>
+            <Terminal className="w-4 h-4 text-[#10B981]" />
+            <span>Laboratorios</span>
+          </button>
 
-          {/* TILE 6: FLASHCARDS */}
-          <motion.div
-            whileHover={{ y: -6, transition: { duration: 0.2 } }}
+          <button
             onClick={() => onOpenFlashcards && onOpenFlashcards()}
-            className="group relative bg-white border-2 border-[#E5E2DE] hover:border-[#F59E0B] rounded-2xl p-6 cursor-pointer overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center h-full"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#E5E2DE] bg-white hover:bg-[#F9F8F6] hover:border-[#F59E0B] text-xs font-semibold text-[#4A4742] hover:text-[#1A1A1A] transition-colors"
           >
-            <div className="absolute inset-0 bg-[#FFFBEB] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="w-16 h-16 rounded-full bg-[#FFFBEB] flex items-center justify-center mb-4 relative z-10 group-hover:scale-110 transition-transform duration-300">
-              <Layers className="w-8 h-8 text-[#F59E0B]" />
-            </div>
-            <h3 className="font-serif font-bold text-[#1A1A1A] text-lg mb-2 relative z-10">
-              Flashcards
-            </h3>
-            <p className="text-[#8C8882] text-xs font-mono relative z-10 leading-relaxed line-clamp-3">
-              Tarjetas de memoria para repasar conceptos.
-            </p>
-          </motion.div>
-
+            <Layers className="w-4 h-4 text-[#F59E0B]" />
+            <span>Flashcards</span>
+          </button>
         </div>
-
-        {/* REAL-TIME TELEMETRY PANEL (Santiago Time, Valparaíso Weather with condition, and Earthquake API) */}
+        
         <LiveTelemetryWidget />
-
+        
         {/* ANUNCIOS Y NUEVAS ACTUALIZACIONES */}
         <UpdatesSection onOpenCCourse={onOpenCCourse} onOpenCChapter={onSelectCChapter} />
       </div>
