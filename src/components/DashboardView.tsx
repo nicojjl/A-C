@@ -281,7 +281,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <LiveTelemetryWidget />
 
         {/* ANUNCIOS Y NUEVAS ACTUALIZACIONES */}
-        <UpdatesSection />
+        <UpdatesSection onOpenCCourse={onOpenCCourse} />
       </div>
     </div>
   );

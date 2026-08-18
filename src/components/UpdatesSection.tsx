@@ -3,8 +3,8 @@ import { Megaphone, Sparkles, ChevronDown, ChevronUp, Calendar, Tag, CheckCircle
 import { APP_UPDATES, AppUpdate } from '../data/updatesData';
 import { motion, AnimatePresence } from 'motion/react';
 
-export const UpdatesSection: React.FC = () => {
-  const [expandedId, setExpandedId] = useState<string>('update-v3.0');
+export const UpdatesSection: React.FC<{ onOpenCCourse?: () => void }> = ({ onOpenCCourse }) => {
+  const [expandedId, setExpandedId] = useState<string>('update-v3.1');
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? '' : id));
@@ -39,7 +39,7 @@ export const UpdatesSection: React.FC = () => {
 
         <div className="text-right text-xs text-[#8C8882] font-mono">
           <span>Versión Actual: </span>
-          <strong className="text-[#C2410C] font-bold">v3.0 (13 Ago 2026)</strong>
+          <strong className="text-[#C2410C] font-bold">v3.1 (17 Ago 2026)</strong>
         </div>
       </div>
 
@@ -133,7 +133,15 @@ export const UpdatesSection: React.FC = () => {
                             className="flex items-start gap-2 text-xs text-[#1A1A1A] leading-relaxed"
                           >
                             <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
-                            <span>{highlight}</span>
+                            <span 
+    dangerouslySetInnerHTML={{ __html: highlight }} 
+    onClick={(e) => {
+      if (e.target instanceof HTMLAnchorElement && e.target.getAttribute('href') === '#playground') {
+        e.preventDefault();
+        if (onOpenCCourse) onOpenCCourse();
+      }
+    }}
+  />
                           </li>
                         ))}
                       </ul>

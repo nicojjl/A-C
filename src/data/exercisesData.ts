@@ -589,7 +589,7 @@ export const EXERCISES_BY_COURSE: Record<string, Exercise[]> = {
       description: "Escribe `int analizarMatriz3D(int n)` con tres bucles anidados que devuelva la cantidad de iteraciones $n^3$.",
       cormenRef: "Cormen Cap 3.1 - Crecimiento Polinomial",
       initialCode: "#include <stdio.h>\n\nint analizarMatriz3D(int n) {\n  int contador = 0;\n  // TODO: Tres bucles anidados i, j, k de 0 a n-1\n  return contador;\n}",
-      solutionCode: "#include <stdio.h>\n\nint analizarMatriz3D(int n) {\n  int contador = 0;\n  for (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n      for (int k = 0; k < k < n; k++) {\n        contador++;\n      }\n    }\n  }\n  return contador;\n}",
+      solutionCode: "#include <stdio.h>\n\nint analizarMatriz3D(int n) {\n  int contador = 0;\n  for (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n      for (int k = 0; k < n; k++) {\n        contador++;\n      }\n    }\n  }\n  return contador;\n}",
       hint: "Usa tres bucles anidados `for` de $0$ a $n-1$.",
       testCases: [
         { id: "t1", description: "n = 3", input: "3", expectedOutput: "27" },
