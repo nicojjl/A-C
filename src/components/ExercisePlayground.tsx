@@ -98,7 +98,7 @@ export function executeCCodeInBrowser(
         } else if (type === 'c') {
           return typeof val === 'number' ? String.fromCharCode(val) : String(val);
         } else if (type === 's') {
-          const str = String(val);
+          const str = Array.isArray(val) ? val.join('') : String(val);
           if (width) {
             const minW = Math.abs(parseInt(width, 10));
             return width.startsWith('-') ? str.padEnd(minW, ' ') : str.padStart(minW, ' ');
@@ -151,54 +151,128 @@ export function executeCCodeInBrowser(
     js = js.replace(/\bfabs\s*\(/g, 'Math.abs(');
     js = js.replace(/\bsqrt\s*\(/g, 'Math.sqrt(');
 
+    const types = "(int|double|float|char|bool|long\\s+long|long|short|size_t|void|FILE|tnode|Lista|Pila|Cola|Grafo|NodoBST|Nodo|Punto|Rectangulo|unsigned)";
+    const modifiers = "(const\\s+)?(unsigned\\s+|signed\\s+)?";
+    const ptrs = "(?:\\s*\\*)*";
+    const ident = "([a-zA-Z0-9_$]+)";
+
+    const declWithInit = new RegExp(`\\b${modifiers}(struct\\s+)?${types}${ptrs}\\s*${ident}(?:\\s*\\[[^\\]]*\\])*\\s*=`, "g");
+    
+    // Fix array declarations: int arr[100]; -> let arr = [];
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*;/g, "let $1 = [];");
+    // Fix multiple array declarations: int L[100], R[100]; -> let L = [], R = [];
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*,\s*([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*;/g, "let $1 = [], $2 = [];");
+    // Fix single without bracket
+    // js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*;/g, "let $1;");
+
+const declWithoutInit = new RegExp(`\\b${modifiers}(struct\\s+)?${types}${ptrs}\\s*${ident}(?:\\s*\\[[^\\]]*\\])*\\s*;`, "g");
+    
+    const multiDecl = new RegExp(`\\b${modifiers}(struct\\s+)?${types}${ptrs}\\s+([a-zA-Z0-9_$]+(?:\\s*\\[[^\\]]*\\])*(?:\\s*,\\s*[a-zA-Z0-9_$]+(?:\\s*\\[[^\\]]*\\])*)+)\\s*;`, "g");
+    const multiInitDecl = new RegExp(`\\b${modifiers}(struct\\s+)?${types}${ptrs}\\s+([a-zA-Z0-9_$]+\\s*=\\s*[^,]+(?:\\s*,\\s*[a-zA-Z0-9_$]+\\s*=\\s*[^,;]+)+)\\s*;`, "g");
+
+    const forDecl = new RegExp(`for\\s*\\(\\s*${modifiers}(struct\\s+)?${types}${ptrs}\\s+`, "g");
+    const funcSigRegex = new RegExp(`^(?:const\\s+)?(?:struct\\s+)?(?:unsigned\\s+|signed\\s+)?(?:(?:long\\s+long)|[a-zA-Z0-9_]+)${ptrs}\\s+${ident}\\s*\\(([^)]*)\\)\\s*\\{`, "gm");
+    const paramRegex = new RegExp(`^(const\\s+)?(struct\\s+)?(unsigned\\s+|signed\\s+)?${types}${ptrs}\\s*`);
+    const arrowRegex = /->/g;
+    const castRegex = new RegExp(`\\(\\s*(?:unsigned\\s+|signed\\s+)?(float|double|int|long\\s+long|char|short)\\s*\\)`, "g");
+
     // 5. Transform C primitive type declarations
-    js = js.replace(
-      /\b(const\s+)?(unsigned\s+|signed\s+)?(int|double|float|char\*|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*=/g,
-      'let $4 ='
-    );
-    js = js.replace(
-      /\b(const\s+)?(unsigned\s+|signed\s+)?(int|double|float|char\*|char|bool|long\s+long|long|short|size_t|void)\s+([a-zA-Z0-9_$]+)\s*;/g,
-      'let $4;'
-    );
+    
+    // Replace array initializers
+    js = js.replace(/=\s*\{([^}]*)\}/g, '= [$1]');
+
+    
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void|Lista|Pila|Cola|Grafo|NodoBST|Nodo|Punto|Rectangulo)\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*=\s*\{([^}]*)\}\s*;/g, "let $1 = [$2];");
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void|Lista|Pila|Cola|Grafo|NodoBST|Nodo|Punto|Rectangulo)\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*;/g, "let $1 = [];");
+
+    js = js.replace(declWithInit, 'let $5 =');
+    js = js.replace(declWithoutInit, 'let $5;');
+    const structDecl = new RegExp(`\\bstruct\\s+[a-zA-Z0-9_]+\\s*\\**\\s*([a-zA-Z0-9_$]+)(?:\\s*\\[[^\\]]*\\])*\\s*;`, "g");
+    js = js.replace(structDecl, 'let $1;');
+
 
     // 6. Loops type declarations
-    js = js.replace(
-      /for\s*\(\s*(unsigned\s+|signed\s+)?(int|double|float|long\s+long|long|short|size_t)\s+/g,
-      'for (let '
-    );
+    
+    js = js.replace(multiDecl, 'let $5;');
+    js = js.replace(multiInitDecl, 'let $5;');
 
+    js = js.replace(forDecl, 'for (let ');
+
+    js = js.replace(/sizeof\s*\([^)]*\)/g, '1');
     // 7. Castings
-    js = js.replace(/\((float|double|int|long\s+long|char|short)\)/g, 'Number');
+    js = js.replace(castRegex, '+');
+    // Remove pointer casts like (tnode*)
+    js = js.replace(/\(\s*(?:struct\s+)?[a-zA-Z0-9_]+\s*\*+\s*\)/g, '');
+    // Remove typedef struct declarations entirely
+    js = js.replace(/typedef\s+struct\s+[a-zA-Z0-9_]+\s*\{[^}]*\}\s*[a-zA-Z0-9_]+\s*;/g, '');
+    // Remove simple struct declarations entirely
+    js = js.replace(/struct\s+[a-zA-Z0-9_]+\s*\{[^}]*\}\s*;/g, '');
+
 
     // 8. Transform C functions to JS
     let mainFuncName = '';
     let firstFuncName = '';
-
     js = js.replace(
-      /^(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char\*|char|bool|long\s+long|long|short|void|size_t)\s+([a-zA-Z0-9_$]+)\s*\(([^)]*)\)\s*\{/gm,
+      funcSigRegex,
       (match, fnName, params) => {
         if (fnName === 'main') mainFuncName = 'main';
         if (!firstFuncName) firstFuncName = fnName;
-
         const cleanParams = params
           .split(',')
           .map((p: string) => {
             let param = p.trim();
             if (!param) return '';
-            param = param.replace(
-              /^(const\s+)?(struct\s+)?(unsigned\s+|signed\s+)?[a-zA-Z0-9_]+\s*\*?\s*/,
-              ''
-            );
-            param = param.replace(/\[\]/g, '');
+            param = param.replace(paramRegex, '');
+            param = param.replace(/\[[^\]]*\]/g, '');
             return param.trim();
           })
           .filter(Boolean)
           .join(', ');
-
         return `function ${fnName}(${cleanParams}) {`;
       }
     );
 
+    
+    // Fix string loops and pointer length
+    js = js.replace(/while\s*\(\s*\*([a-zA-Z0-9_$]+)(?:\s*(?:!=\s*'\\0'|!==\s*undefined))?\s*\)\s*\{\s*\1\+\+;\s*\}/g, '$1 = "";');
+    js = js.replace(/return\s+([a-zA-Z0-9_$]+)\s*-\s*([a-zA-Z0-9_$]+)\s*;/g, "return (typeof $2 === 'string') ? $2.length : $1 - $2;");
+    js = js.replace(/!='\\0'/g, '!==undefined');
+    js = js.replace(/(?:!=\s*'\\0'|!==\s*undefined)/g, '!== undefined');
+
+    
+    js = js.replace(/\*([a-zA-Z0-9_$]+)\s*\+\+/g, '$1++');
+    js = js.replace(/\+\+\*([a-zA-Z0-9_$]+)/g, '++$1');
+
+    
+
+    
+    js = js.replace(/\*+\s*([a-zA-Z0-9_$]+)/g, (match, p1, offset, string) => {
+        let prevChar = string.substring(0, offset).trim().slice(-1);
+        if (/^[a-zA-Z0-9_)$\]]$/.test(prevChar)) {
+            return match;
+        }
+        return p1;
+    });
+
+    // Generic replacement for string copy loop: while ((*s++ = *t++) != '\0');
+    js = js.replace(/while\s*\(\(\s*\*?\s*([a-zA-Z0-9_$]+)\s*\+\+\s*=\s*\*?\s*([a-zA-Z0-9_$]+)\s*\+\+\s*\)\s*(?:!=\s*'\\0'|!==\s*undefined)\s*\)\s*;/g, "$1.splice(0, $1.length, ...(typeof $2 === 'string' ? $2.split('') : $2));");
+
+    js = js.replace(/\bprintf\s*\(\s*"([^"]*)"(?:\s*,\s*([^;]+))?\s*\)/g, (match, fmt, argsStr) => {
+      // Fix for single %s arg with array
+      if (fmt === '%s' || fmt === '%s\\n') {
+         return `printf("${fmt}", typeof ${argsStr} === 'string' ? ${argsStr} : (Array.isArray(${argsStr}) ? ${argsStr}.join('') : ${argsStr}))`;
+      }
+      return match;
+    });
+
+    js = js.replace(/([a-zA-Z0-9_$]+)\s*\+\+\s*=\s*([a-zA-Z0-9_$]+)\s*\+\+/g, '$1 = $2');
+
+    
+    
+    // Replace arrow operator
+    js = js.replace(arrowRegex, '.');
+
+    // Fix pointer dereferences in expressions
     // Fix pointer dereferences in expressions
     js = js.replace(/\*([a-zA-Z0-9_$]+)\s*\+=/g, '$1 +=');
     js = js.replace(/\*([a-zA-Z0-9_$]+)\s*\+/g, ' ($1 || 0) +');
@@ -210,7 +284,23 @@ export function executeCCodeInBrowser(
     js = js.replace(/\*([a-zA-Z0-9_$]+)\s*=/g, '$1 =');
     js = js.replace(/&([a-zA-Z0-9_$]+)/g, '$1');
     
-    js = js.replace(/sizeof\s*\([^)]*\)/g, '1');
+    
+    
+
+    
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?char\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*=\s*("[^"]*")\s*;/g, "let $1 = $2;");
+
+    
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void|Lista|Pila|Cola|Grafo|NodoBST|Nodo|Punto|Rectangulo)\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*=\s*\{([^}]*)\}\s*;/g, "let $1 = [$2];");
+    js = js.replace(/\b(?:const\s+)?(?:unsigned\s+|signed\s+)?(?:int|double|float|char|bool|long\s+long|long|short|size_t|void|Lista|Pila|Cola|Grafo|NodoBST|Nodo|Punto|Rectangulo)\s+([a-zA-Z0-9_$]+)\s*\[[^\]]*\]\s*;/g, "let $1 = [];");
+
+    
+
+    
+    // Also remove the old broken ones
+
+
+
     // Construct evaluator Function
     console.log("EVAL JS:", js);
     const evaluator = new Function(
@@ -231,6 +321,8 @@ export function executeCCodeInBrowser(
       const memset = (arr, val, len) => { if (Array.isArray(arr)) { arr.fill(val, 0, len); } return arr; };
       const memcpy = (dest, src, n) => { return dest; };
       const sizeof = () => 1;
+      const getchar = () => '\\n';
+      const log = Math.log;
       
       ${js}
 
@@ -450,8 +542,12 @@ export const ExercisePlayground: React.FC<ExercisePlaygroundProps> = ({
       try {
         if (tc.input) {
           // eslint-disable-next-line no-new-func
-          const parsedArg = new Function(`return ${tc.input};`)();
-          argVal = Array.isArray(parsedArg) ? parsedArg : [parsedArg];
+          let rawReturn = new Function(`return ${tc.input};`)();
+          if (typeof tc.input === 'string' && tc.input.includes(',') && !tc.input.trim().startsWith('[')) {
+              // it's a comma separated list without brackets, like "2, 5"
+              rawReturn = new Function(`return [${tc.input}];`)();
+          }
+          argVal = Array.isArray(rawReturn) ? rawReturn : [rawReturn];
         }
       } catch (e) {
         argVal = [];

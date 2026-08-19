@@ -1,3 +1,4 @@
+import { MORE_ALGORITHMS } from './moreAlgorithmsData';
 import { AlgorithmItem, AlgoCategory } from '../types';
 
 export const ALGORITHMS_DATA: AlgorithmItem[] = [
@@ -2134,6 +2135,9 @@ bool solveNQ(std::vector<std::vector<int>>& board, int col, int n) {
     exercises: []
   }
 ];
+
+
+ALGORITHMS_DATA.push(...MORE_ALGORITHMS);
 
 export const ALGO_CATEGORIES: { id: AlgoCategory; label: string; count: number; icon: string }[] = [
   { id: 'conceptos' as AlgoCategory, label: 'Conceptos Fundamentales', icon: '💡', count: 0 },

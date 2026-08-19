@@ -1,0 +1,275 @@
+  {
+    id: 'clase-1',
+    number: 1,
+    type: 'class',
+    title: 'Clase 1 – Introducción al Curso y Análisis Algorítmico',
+    topic: '¿Qué es un algoritmo, por qué importa la complejidad y cómo escala el costo computacional?',
+    cormenChapter: 'Capítulo 1: El papel de los algoritmos en la informática (CLRS 4ta Ed., págs. 5–15)',
+    durationMinutes: 60,
+    summary: 'En una frase: Un algoritmo eficiente transforma la potencia computacional bruta en rendimiento real escalable, superando siempre al hardware rápido cuando los datos crecen.\n\nIntroducción a la algorítmica como tecnología central. Diferenciación entre hardware rápido y algoritmos eficientes con impacto empírico en escalabilidad masiva.',
+    visualizerType: 'big_o_chart',
+    nextItemId: 'clase-2',
+    theoryContent: `# Clase 1: El Papel de los Algoritmos en la Computación
+
+---
+
+## 1. INTRODUCCIÓN Y MOTIVACIÓN
+
+¿Por qué importa estudiar algoritmos? En la era de los procesadores multinúcleo a gigahertz y el *Big Data*, existe la falsa creencia de que la potencia bruta del hardware puede compensar el código ineficiente. Sin embargo, cuando el volumen de datos de entrada $n$ pasa de miles a millones, la **complejidad algorítmica** domina por completo sobre la velocidad de reloj del procesador. 
+
+Un algoritmo no es simplemente "código que funciona". Es una especificación matemática rigurosa que transforma recursos computacionales finitos (tiempo de CPU y memoria RAM) en soluciones exactas. Un algoritmo ineficiente ejecutado en una supercomputadora colapsará irremisiblemente ante un algoritmo eficiente ejecutado en un teléfono móvil, siempre y cuando $n$ crezca lo suficiente.
+
+**Breve Contexto Histórico:**
+* **1843 – Ada Lovelace**: Escribió el primer algoritmo formal destinado a una máquina (la Máquina Analítica de Babbage).
+* **1936 – Alan Turing**: Formalizó la definición matemática de "computable" mediante la Máquina de Turing, estableciendo los límites físicos del software.
+* **1990 – Cormen, Leiserson, Rivest y Stein (CLRS)**: Publicaron *Introduction to Algorithms*, estandarizando el análisis asintótico como el lenguaje universal de los ingenieros de software de élite.
+
+**Conexión:**
+Esta clase establece la piedra angular del curso. Todas las estructuras avanzadas que estudiaremos después (árboles Red-Black, programación dinámica, grafos) persiguen un único objetivo fundamental: aplastar la curva de crecimiento temporal que veremos hoy.
+
+---
+
+## 2. EXPLICACIÓN TEÓRICA AMPLIADA
+
+### 2.1 Definición Formal de Algoritmo y Problema Computacional
+Según **Cormen et al.**, un **algoritmo** es cualquier procedimiento computacional bien definido que toma algún valor (o conjunto) como **entrada** y produce algún valor como **salida**, satisfaciendo una relación funcional especificada.
+
+Es vital separar dos conceptos que a menudo se confunden:
+1. **Problema Computacional**: La declaración abstracta y matemática de la relación deseada entre entradas permitidas y salidas esperadas. (Ej: "Ordenar una lista de números").
+2. **Algoritmo**: La secuencia finita, determinista e inequívoca de pasos concretos en código que resuelve dicho problema. (Ej: "Merge Sort" o "Insertion Sort").
+
+Para que un algoritmo sea considerado correcto, debe gozar de tres propiedades inquebrantables:
+* **Finitud**: Debe detenerse tras un número finito de operaciones.
+* **Definibilidad**: Ningún paso puede ser ambiguo.
+* **Correctitud**: Para toda entrada válida, debe detenerse y producir la salida exigida por el problema computacional. Un algoritmo incorrecto podría no detenerse (bucle infinito) o entregar respuestas erróneas.
+
+### 2.2 Ejemplo Guiado Paso a Paso: El Problema de la Clasificación
+Consideremos el problema de **ordenamiento**:
+* **Entrada**: Una secuencia $I = \langle 31, 41, 59, 26, 41, 58 \rangle$.
+* **Salida**: Una permutación ordenada $O = \langle 26, 31, 41, 41, 58, 59 \rangle$.
+
+**Insertion Sort (Enfoque Cuadrático):**
+Compara cada número con los anteriores y lo arrastra hasta su lugar. Si evaluamos $26$, lo compara con $59$, $41$ y $31$, realizando múltiples intercambios redundantes. El esfuerzo total crece como un cuadrado ($n^2$).
+
+**Merge Sort (Enfoque Divide y Vencerás):**
+Parte la lista a la mitad constantemente hasta tener listas de 1 elemento, y luego las unifica linealmente. En lugar de comparar todos contra todos, aprovecha que las sublistas ya vienen ordenadas al fusionarse. 
+
+### 2.3 Errores Comunes de los Estudiantes
+- **Confundir tiempo medido (\`clock()\`) con complejidad**: El tiempo en segundos varía por la temperatura de la CPU, otros procesos en segundo plano o el lenguaje. La complejidad mide la tasa de crecimiento de las instrucciones elementales, independientemente del hardware.
+- **Ignorar el "Peor Caso"**: Diseñar algoritmos basados en cómo rinden con datos ideales, ignorando qué ocurre cuando el usuario ingresa datos intencionalmente desordenados o degenerados.
+
+---
+
+## 3. ANÁLISIS DE COMPLEJIDAD DETALLADO
+
+El análisis de algoritmos implica predecir los recursos (memoria, ancho de banda, pero primariamente tiempo de CPU) que el algoritmo requerirá.
+
+### 3.1 Derivación de Complejidad
+Para el algoritmo **Insertion Sort**, el número de comparaciones en el peor caso (arreglo invertido) forma una progresión aritmética:
+$$ \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} = \frac{1}{2}n^2 - \frac{1}{2}n $$
+Cuando $n$ es enorme, el término $-\frac{1}{2}n$ y la constante $\frac{1}{2}$ se vuelven insignificantes. La tasa de crecimiento está dominada puramente por $n^2$. Decimos que su complejidad es $O(n^2)$.
+
+### 3.2 Tabla de Crecimiento y Comparación Empírica
+Asumamos una CPU hipotética que ejecuta $10^6$ operaciones por segundo ($1\mu s$ por operación). Veamos la explosión combinatoria:
+
+| $n$ (Entrada) | $O(1)$ | $O(\log_2 n)$ | $O(n)$ | $O(n \log_2 n)$ | $O(n^2)$ | $O(2^n)$ |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **10** | $1\mu s$ | $3\mu s$ | $10\mu s$ | $33\mu s$ | $100\mu s$ | $1 ms$ |
+| **100** | $1\mu s$ | $6.6\mu s$ | $100\mu s$ | $664\mu s$ | $10 ms$ | $4 \times 10^{16}$ años |
+| **1,000** | $1\mu s$ | $10\mu s$ | $1 ms$ | $10 ms$ | $1 s$ | **Incalculable** |
+| **10,000** | $1\mu s$ | $13\mu s$ | $10 ms$ | $0.13 s$ | $1.6 min$ | **Imposible** |
+| **100,000** | $1\mu s$ | $16\mu s$ | $0.1 s$ | $1.6 s$ | $2.7 hrs$ | **Imposible** |
+| **1,000,000** | $1\mu s$ | $20\mu s$ | $1 s$ | $20 s$ | $11.5 d$ | **Imposible** |
+
+*Incluso con una supercomputadora 1000 veces más rápida, un algoritmo $O(2^n)$ seguiría tardando billones de años para $n=100$. ¡El algoritmo vence al hardware!*
+
+---
+
+## 4. APLICACIONES EN EL MUNDO REAL
+
+1. **Motores de Búsqueda (Google/Bing)**: Enrutar billones de consultas web requiere estructuras de índices invertidos $O(1)$ en lugar de buscar linealmente texto por texto $O(n)$.
+2. **Criptografía (RSA)**: La seguridad de internet se basa en un asimetría de complejidad: encriptar es algorítmicamente rápido $O(n^3)$, pero desencriptar sin la clave (factorización de primos) requiere algoritmos exponenciales $O(2^n)$ intratables para la humanidad.
+3. **Rutas GPS**: Calcular la ruta óptima de tu casa al trabajo usa algoritmos de grafos subcuadráticos. Si tuvieran que evaluar todas las rutas físicamente posibles, el GPS tardaría años en encender.
+
+---
+
+## 5. NOTAS DE IMPLEMENTACIÓN EN C
+
+C es un lenguaje no gestionado de bajo nivel, lo que significa que **tú eres responsable de la máquina**:
+* **Desbordamiento de Enteros (Overflow)**: Si $n$ representa la cantidad de nodos y $n=1,000,000$, un contador de operaciones cuadráticas requerirá $1,000,000,000,000$. Ese número no cabe en un \`int\` tradicional de 32 bits en C (máximo $\approx 2.1 \times 10^9$). Provocará *Overflow* y valores negativos, destrozando tu programa. Usa \`long long\`.
+* **Punteros y Asignación Dinámica**: En C, crear sub-arreglos (como exige Merge Sort) implica invocar manual y repetidamente a \`malloc()\` y \`free()\`. Si olvidas un \`free()\`, generarás un *Memory Leak*, agotando la RAM física en segundos.
+
+---
+
+## 6. GLOSARIO DE TÉRMINOS DE LA CLASE
+
+* **Algoritmo**: Secuencia inequívoca y finita de instrucciones para resolver un problema.
+* **Problema Computacional**: Definición matemática formal de la entrada y salida deseada.
+* **Correctitud**: Propiedad de un algoritmo que garantiza la detención y la respuesta exacta siempre.
+* **Complejidad Temporal**: Tasa matemática de crecimiento del tiempo de ejecución en función de la entrada $n$.
+* **Hardware vs Software**: Demostración de que las mejoras tecnológicas físicas nunca pueden superar a las deficiencias matemáticas del diseño del código.
+
+---
+
+### Para profundizar
+*Revisa el Capítulo 1, secciones 1.1 y 1.2 del libro "Introduction to Algorithms" (CLRS) para la prueba formal del enfrentamiento entre Insertion Sort en una supercomputadora vs Merge Sort en una PC lenta.*
+
+### Guía de Animación
+*A continuación verás una gráfica interactiva de Complejidad Big-O. Intenta activar las curvas de $O(n^2)$ y $O(2^n)$ al mismo tiempo y observa cómo la curva exponencial "desaparece" de la pantalla casi instantáneamente, demostrando visualmente por qué los algoritmos de fuerza bruta colapsan tu sistema.*
+`,
+    checkQuestions: [
+      {
+        id: 'clrs-1-q1',
+        question: '¿Por qué un algoritmo O(n²) en la computadora más rápida del mundo siempre perderá a largo plazo contra un algoritmo O(n log n) en una computadora muy lenta?',
+        options: [
+          'Porque el lenguaje C es más rápido que Python.',
+          'Porque los compiladores modernos optimizan el logaritmo.',
+          'Porque la tasa matemática de crecimiento de n² superará inevitablemente cualquier constante de velocidad física a medida que n tienda a infinito.',
+          'Es falso, una computadora cuántica siempre ganará sin importar la complejidad.'
+        ],
+        correctIndex: 2,
+        explanation: 'La complejidad asintótica dicta el comportamiento cuando el tamaño de la entrada crece hacia el infinito. Una constante de hardware será eventualmente opacada por la explosión cuadrática de n².'
+      },
+      {
+        id: 'clrs-1-q2',
+        question: '¿Cuáles son las tres propiedades inquebrantables para que un procedimiento sea considerado un "algoritmo correcto"?',
+        options: [
+          'Velocidad, Memoria y Escalabilidad',
+          'Finitud, Definibilidad y Correctitud',
+          'Compilación nativa, Punteros y Recursión',
+          'Determinismo, Aleatoriedad y Convergencia'
+        ],
+        correctIndex: 1,
+        explanation: 'Debe detenerse (Finitud), no tener pasos ambiguos (Definibilidad) y entregar siempre la salida esperada por la especificación del problema (Correctitud).'
+      },
+      {
+        id: 'clrs-1-q3',
+        question: 'Si mides tu algoritmo con `clock()` en C y demora 2 segundos, ¿has descubierto su complejidad temporal?',
+        options: [
+          'Sí, la complejidad temporal es exactamente 2 segundos.',
+          'No, has medido el tiempo de reloj empírico, que depende del hardware actual, no la complejidad matemática asintótica.',
+          'Sí, asumiendo que usas C, porque en Python daría un valor erróneo.',
+          'No, porque `clock()` no cuenta el tiempo de disco duro.'
+        ],
+        correctIndex: 1,
+        explanation: 'El tiempo de reloj es anecdótico y varía. La complejidad mide cómo cambia el número de instrucciones lógicas a medida que n se incrementa.'
+      },
+      {
+        id: 'clrs-1-q4',
+        question: 'Según la tabla empírica mostrada, ¿qué sucede con un algoritmo O(2ⁿ) si n=100?',
+        options: [
+          'Tarda 100 milisegundos.',
+          'Provoca un Memory Leak.',
+          'El tiempo de ejecución excede drásticamente la edad del universo, haciéndolo computacionalmente imposible.',
+          'Requiere dividir el arreglo en sublistas de log 100.'
+        ],
+        correctIndex: 2,
+        explanation: 'O(2^n) crece tan agresivamente que para 100 elementos, el número de operaciones supera 1.26 x 10^30, incalculable en la práctica física actual.'
+      },
+      {
+        id: 'clrs-1-q5',
+        question: '¿Qué es un "Problema Computacional" según CLRS?',
+        options: [
+          'Un error en el compilador (Bug).',
+          'Una declaración matemática que describe la relación deseada entre Entradas y Salidas.',
+          'Un código en C mal estructurado.',
+          'La imposibilidad de resolver P vs NP.'
+        ],
+        correctIndex: 1,
+        explanation: 'Un problema computacional es la abstracción teórica de lo que se busca resolver (ej. ordenar datos), mientras que el algoritmo es el mecanismo para lograrlo.'
+      }
+    ],
+    exercises: [
+      {
+        id: 'clrs-1-ex1',
+        title: 'Nivel 1 (Conceptual): Predicción de Crecimiento Asintótico',
+        description: 'Dados dos algoritmos A y B con complejidades f(n) = 100n y g(n) = n², determina para qué valor mínimo de n el algoritmo A comienza a ser estrictamente más eficiente que el algoritmo B.',
+        cormenRef: 'CLRS 4ta Ed., Ejercicio 1.2-2',
+        initialCode: '#include <stdio.h>\n\n// Responde en C retornando el valor int mínimo de n\nint calcularPuntoDeCruce() {\n    // f(n) = 100 * n\n    // g(n) = n * n\n    // Queremos encontrar el n donde 100n < n^2\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint calcularPuntoDeCruce() {\n    int n = 1;\n    while (100 * n >= n * n) {\n        n++;\n    }\n    return n; // Retorna 101\n}',
+        hint: 'Despeja la desigualdad 100n < n² dividiendo ambos lados entre n (para n > 0). Obtendrás 100 < n, por lo que el primer entero es 101.',
+        explanation: 'Para n <= 100, la constante 100 hace que g(n) = n² parezca más rápido o igual. Pero para n = 101 en adelante, g(n) crece como n² y f(n) = 100n demuestra su superioridad lineal.',
+        testCases: [
+          { id: 'tc-1', description: 'Verificar el punto de cruce exacto entre 100n y n²', input: '', expectedOutput: '101' }
+        ]
+      },
+      {
+        id: 'clrs-1-ex2',
+        title: 'Nivel 1 (Conceptual): Predecir la Salida',
+        description: '¿Qué propiedad vital rompe el siguiente pseudocódigo hipotético?\n\n1. Entra un número x\n2. Mientras x sea mayor que 0:\n3.    Haz algo útil\n4. Imprime x',
+        cormenRef: 'CLRS 1.1',
+        initialCode: '// Modifica esta función para que retorne 1 si rompe la Finitud, 2 si rompe Definibilidad, 3 si Correctitud.\nint quePropiedadRompe() {\n    return 0;\n}',
+        solutionCode: 'int quePropiedadRompe() {\n    return 1; // Finitud\n}',
+        hint: 'Observa la línea 2. ¿Qué instrucción modifica a x para salir del bucle?',
+        explanation: 'El algoritmo rompe la propiedad de FINITUD. Dado que x nunca se decrece dentro del bucle, el programa caerá en un ciclo infinito y nunca se detendrá.',
+        testCases: [
+          { id: 'tc-2', description: 'Retornar propiedad violada', input: '', expectedOutput: '1' }
+        ]
+      },
+      {
+        id: 'clrs-1-ex3',
+        title: 'Nivel 2 (Aplicación Guiada): Completar Espacios O(n²)',
+        description: 'Considera un bucle en C que suma todos los elementos de una matriz NxN. Reemplaza los -1 para que se recorra todo correctamente, denotando un algoritmo O(n²).',
+        cormenRef: 'CLRS 1.2',
+        initialCode: '#include <stdio.h>\n\nint sumMatrix(int N) {\n    int sum = 0;\n    for(int i = 0; i < -1; i++) {\n        for(int j = 0; j < -1; j++) {\n            sum += 1;\n        }\n    }\n    return sum;\n}\n\nint main() {\n    printf("%d", sumMatrix(10));\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint sumMatrix(int N) {\n    int sum = 0;\n    for(int i = 0; i < N; i++) {\n        for(int j = 0; j < N; j++) {\n            sum += 1;\n        }\n    }\n    return sum;\n}\n\nint main() {\n    printf("%d", sumMatrix(10));\n    return 0;\n}',
+        hint: 'Una matriz cuadrada tiene N filas y N columnas. Reemplaza ambos -1 por N.',
+        explanation: 'Ambos bucles deben iterar N veces. Esto genera N iteraciones exteriores, y cada una detona N iteraciones interiores. Operaciones totales: N * N = N².',
+        testCases: [
+          { id: 'tc-3', description: 'Completar límites', input: '', expectedOutput: '100' }
+        ]
+      },
+      {
+        id: 'clrs-1-ex4',
+        title: 'Nivel 2 (Aplicación Guiada): Encontrar el Error (Bug)',
+        description: 'Un ingeniero hizo este código para predecir las operaciones de un O(n²). ¿Por qué fallará si N es 100,000? Corrige el código.',
+        cormenRef: 'CLRS 1.2',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    int n = 100000;\n    int ops = n * n;\n    printf("%d", ops);\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int n = 100000;\n    long long ops = (long long)n * n;\n    printf("%lld", ops);\n    return 0;\n}',
+        hint: '100,000 multiplicado por 100,000 es 10,000,000,000. Ese número no cabe en un int de 32 bits.',
+        explanation: 'Se produce Integer Overflow. En C, un int de 32 bits llega hasta ~2.14x10^9. Se debe hacer cast a long long para no perder información.',
+        testCases: [
+          { id: 'tc-4', description: 'Imprimir valor exacto', input: '', expectedOutput: '10000000000' }
+        ]
+      },
+      {
+        id: 'clrs-1-ex5',
+        title: 'Nivel 3 (Implementación): Medición Real',
+        description: 'Escribe un programa que cuente las operaciones de un triple bucle anidado (O(n^3)) para `n = 1000`. Declara un contador, súmalo en el bucle interior, e imprímelo al final.',
+        cormenRef: 'CLRS 1.2',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    int n = 1000;\n    // Tu código aquí\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int n = 1000;\n    long long ops = 0;\n    for (int i=0; i<n; i++) {\n        for (int j=0; j<n; j++) {\n            for (int k=0; k<n; k++) {\n                ops++;\n            }\n        }\n    }\n    printf("%lld", ops);\n    return 0;\n}',
+        hint: 'Tres bucles `for` anidados. No olvides que 1000^3 es un billón (10^9), que requiere long long.',
+        explanation: 'Esta implementación prueba empíricamente el volumen masivo de operaciones en O(n^3). 1000 elementos requieren 1,000,000,000 operaciones.',
+        testCases: [
+          { id: 'tc-5', description: 'Contar operaciones anidadas', input: '', expectedOutput: '1000000000' }
+        ]
+      },
+      {
+        id: 'clrs-1-ex6',
+        title: 'Nivel 4 (Análisis): Justificar Big-O',
+        description: 'Escribe una función que retorne el valor de K (donde K es la cantidad de iteraciones) del siguiente bucle, si N es 1024.\n`for(int i = 1; i <= n; i *= 2)`',
+        cormenRef: 'CLRS 1.2',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    int k = 0; // Cambia esto al valor matemático\n    printf("%d", k);\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int k = 11;\n    printf("%d", k);\n    return 0;\n}',
+        hint: 'i toma valores: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024. ¡Cuéntalos!',
+        explanation: 'El bucle se ejecuta para i = 2^0, 2^1, ... hasta 2^10. Son exactamente 11 iteraciones. Es un ejemplo clásico de complejidad O(log n).',
+        testCases: [
+          { id: 'tc-6', description: 'Número de pasos', input: '', expectedOutput: '11' }
+        ]
+      },
+      {
+        id: 'clrs-1-ex7',
+        title: 'Nivel 5 (Desafío Integrador Avanzado)',
+        description: 'Escribe un algoritmo O(n) para encontrar el elemento mayor en un arreglo de enteros. El programa recibirá N en STDIN, seguido de N enteros. Debe imprimir el mayor.',
+        cormenRef: 'CLRS 2.1',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    int n;\n    if (scanf("%d", &n) != 1) return 0;\n    // Continuar leyendo n elementos...\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int n;\n    if (scanf("%d", &n) != 1) return 0;\n    if (n <= 0) return 0;\n    long long max_val = -99999999999;\n    for (int i = 0; i < n; i++) {\n        long long curr;\n        scanf("%lld", &curr);\n        if (curr > max_val) max_val = curr;\n    }\n    printf("%lld", max_val);\n    return 0;\n}',
+        hint: 'En lugar de comparar todos contra todos O(n²), mantén una variable `max_val` y actualízala leyendo cada número en un solo bucle O(n).',
+        explanation: 'Este patrón es la base de reducir la complejidad de O(n²) a O(n). Mantener un registro del "rey de la colina" mientras recorres la lista elimina comparaciones redundantes.',
+        testCases: [
+          { id: 'tc-7', description: 'Prueba estándar', input: '5\n10 2 30 4 5', expectedOutput: '30' }
+        ]
+      }
+    ]
+  },

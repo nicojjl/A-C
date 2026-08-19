@@ -1,0 +1,15 @@
+Failed: ex-1-1 - Unexpected identifier 'Math'
+Failed: ex-1-3 - Unexpected identifier 'Math'
+Failed: ex-1-5 - Unexpected number
+Failed: ex-5-1 - Unexpected identifier 'factorial'
+Failed: ex-5-4 - Unexpected identifier 'potencia'
+Failed: ex-6-5 - Unexpected identifier 'nodo'
+Failed: ex-7-2 - Unexpected identifier 'raiz'
+Failed: ex-9-5 - Unexpected identifier 'b'
+Failed: ex-t2-2 - Unexpected identifier 'i'
+Failed: ex-t2-5 - Unexpected identifier 'n'
+Failed: ex-11-2 - Unexpected identifier 'arr'
+Failed: ex-12-1 - Unexpected identifier 'j'
+Failed: ex-12-3 - Maximum call stack size exceeded
+Failed: ex-12-5 - Unexpected identifier 'a'
+Failed: ex-13-1 - Unexpected identifier 'visitados'

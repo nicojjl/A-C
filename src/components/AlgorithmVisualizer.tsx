@@ -40,7 +40,7 @@ export interface AlgorithmVisualizerProps<TInput = any> {
   generateSteps: (input: TInput) => AlgoVisualStep[];
   formatCustomInput?: (text: string) => TInput | null;
   customInputPlaceholder?: string;
-  visualizerType?: 'array' | 'graph' | 'dp' | 'auto';
+  visualizerType?: 'array' | 'graph' | 'dp' | 'stack-queue' | 'auto';
   allowCustomInput?: boolean;
 }
 
@@ -69,6 +69,24 @@ export const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
   const [speedMs, setSpeedMs] = useState<number>(800);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen().catch(err => console.log(err));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // Split pseudocode into clean lines
   const pseudocodeLines = pseudocode.trim().split('\n');
@@ -148,10 +166,12 @@ export const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
       ? 'dp'
       : currentStep.graphNodes
       ? 'graph'
+      : currentStep.stackQueueState
+      ? 'stack-queue'
       : 'array';
 
   return (
-    <div className="bg-white border border-[#E5E2DE] rounded-2xl p-5 sm:p-7 shadow-xs space-y-6">
+    <div ref={containerRef} className={`bg-white border border-[#E5E2DE] rounded-2xl p-5 sm:p-7 shadow-xs space-y-6 ${isFullscreen ? "overflow-y-auto w-full h-full p-8" : ""}`}>
       {/* Header Info Banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-[#E5E2DE]">
         <div className="space-y-1.5">
@@ -163,9 +183,14 @@ export const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
               {categoryLabel}
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#1A1A1A]">
-            {title}
-          </h2>
+          <div className="flex items-center justify-between w-full">
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#1A1A1A]">
+              {title}
+            </h2>
+            <button onClick={toggleFullscreen} className="p-2 bg-[#F9F8F6] hover:bg-[#E5E2DE] text-[#4A4742] rounded-xl transition" title="Pantalla completa">
+              {isFullscreen ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>}
+            </button>
+          </div>
           {subtitle && (
             <p className="text-xs text-[#4A4742] leading-relaxed max-w-2xl">
               {subtitle}
@@ -397,6 +422,29 @@ export const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
               )}
 
               {/* 3. DYNAMIC PROGRAMMING (DP) GRID CANVASES */}
+              
+              {resolvedType === 'stack-queue' && currentStep.stackQueueState && (
+                <div className="w-full flex flex-col items-center justify-end min-h-[200px] bg-stone-950 p-6 border border-stone-800 rounded-xl relative">
+                  <div className="w-32 border-b-4 border-l-4 border-r-4 border-stone-700 rounded-b-lg flex flex-col-reverse justify-start p-2 gap-2 max-h-[300px] overflow-y-auto">
+                    {currentStep.stackQueueState.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`w-full text-center py-2 rounded font-mono font-bold text-sm ${
+                          item.active ? 'bg-[#C2410C] text-white' : 'bg-stone-800 text-stone-200 border border-stone-600'
+                        }`}
+                      >
+                        {item.value}
+                      </motion.div>
+                    ))}
+                    {currentStep.stackQueueState.length === 0 && (
+                      <div className="text-center text-stone-500 font-mono text-xs py-4">VACÍO</div>
+                    )}
+                  </div>
+                  <div className="mt-4 font-mono text-stone-400 text-xs text-center">Base (Stack/Queue)</div>
+                </div>
+              )}
               {resolvedType === 'dp' && currentStep.dpGrid && (
                 <div className="overflow-x-auto bg-stone-950 p-4 border border-stone-800 rounded-xl w-full">
                   <table className="w-full text-center text-xs font-mono border-collapse">

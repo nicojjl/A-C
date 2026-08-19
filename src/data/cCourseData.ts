@@ -8,7 +8,7 @@ export const C_COURSE_DATA: CChapter[] = [
     subtitle: 'Fundamentos esenciales del Lenguaje C: Sintaxis, Memoria, Estructuras de Control, Tipos y Rangos',
     icon: '📘',
     description: 'Aprende la arquitectura básica de un programa en C, el flujo de compilación, la tabla completa de rangos de tipos primitivos, el fenómeno de integer overflow y el modelo de I/O de caracteres.',
-    summary: 'El primer capítulo establece los cimientos del estándar C de Kernighan & Ritchie. Comprenderás el mapa de memoria, la compilación nativa, la tabla de rangos de datos con desbordamiento y el procesamiento de flujos con getchar/putchar.',
+    summary: 'En una frase: C compila directamente a máquina, otorgando velocidad cruda, pero delegando a ti toda la responsabilidad de los rangos de memoria y los ciclos de ejecución.',
     keyConcepts: [
       '#include y stdio.h',
       'Función main() y código de salida',
@@ -33,12 +33,6 @@ export const C_COURSE_DATA: CChapter[] = [
         concept: 'Flujos E/S con getchar() y putchar()',
         analogy: 'Un flujo de entrada (stdin) es como una cinta transportadora que entrega una caja (carácter) a la vez. getchar() toma la caja de la cinta y putchar() la coloca en la caja de despacho.',
         whyItWorks: 'Explica por qué C lee el texto carácter a carácter y por qué getchar() retorna un entero para reconocer la señal especial de cinta vacía (EOF).'
-      },
-      {
-        title: 'Paso por Valor como Fotocopiar un Documento',
-        concept: 'Argumentos de funciones en C (Pass-by-value)',
-        analogy: 'Si le prestas una fotocopia de tus notas a un compañero y él hace anotaciones en ella, tus notas originales en tu libreta no se alteran en absoluto.',
-        whyItWorks: 'Demuestra con claridad por qué modificar un parámetro dentro de una función en C no afecta la variable original en main().'
       }
     ],
     theoryContent: `# Capítulo 1: Introducción General (El Tutorial K&R)
@@ -47,354 +41,243 @@ export const C_COURSE_DATA: CChapter[] = [
 
 ## 1. INTRODUCCIÓN Y MOTIVACIÓN
 
-### C: La Lengua Franca de la Computación de Sistemas
-El lenguaje **C** no es simplemente un lenguaje de programación más; es la infraestructura invisible sobre la cual opera el mundo digital moderno. Diseñado entre 1969 y 1973 por **Dennis Ritchie** en los Laboratorios Bell de AT&T para reescribir el sistema operativo UNIX, C logró una hazaña inédita: combinar la velocidad y el acceso directo a la memoria RAM propios del lenguaje Ensamblador con la abstracción elegante y estructurada de un lenguaje de alto nivel.
+El lenguaje **C** no es simplemente un lenguaje de programación más; es la infraestructura monolítica e invisible sobre la cual opera el mundo digital moderno. Fue diseñado entre 1969 y 1973 por **Dennis Ritchie** en los Laboratorios Bell de AT&T con un único objetivo pragmático: reescribir el sistema operativo UNIX (que estaba en Ensamblador) para hacerlo portable.
 
-A diferencia de lenguajes interpretados o gestionados por una máquina virtual (como Python, JavaScript o Java), C se compila directamente a código máquina nativo del procesador. No existe una capa de gestión de memoria (*Garbage Collector*). Cada variable ocupa una ubicación física real en la memoria RAM y cada instrucción de C se traduce casi 1:1 a instrucciones de la CPU.
+C logró una hazaña inédita en la historia de la computación: combinar la velocidad extrema y el acceso quirúrgico directo a la memoria física (RAM, Registros) que ofrecía el lenguaje Ensamblador, con la abstracción matemática y estructurada de lenguajes de alto nivel como ALGOL.
 
-### Breve Contexto Histórico
-* **1972 – Dennis Ritchie**: Diseña el lenguaje C en Bell Labs como sucesor del lenguaje B (de Ken Thompson).
-* **1978 – Kernighan & Ritchie (K&R)**: Publican *The C Programming Language*, el célebre "Libro Blanco" que definió el primer estándar informal de C (*K&R C*).
-* **1989 – ANSI C (C89/C90)**: Formaliza el estándar del lenguaje, introduciendo prototipos de funciones (\`void main(void)\`), calificadores \`const\` y bibliotecas estándar unificadas.
+A diferencia de Python o Java, C no posee un recolector de basura (*Garbage Collector*) ni corre sobre una máquina virtual de intérpretes. Se compila crudo, directo al metal. Eres el piloto y no hay piloto automático.
+
+**Conexión:**
+Al comprender C, comprenderás cómo funcionan por debajo los intérpretes de otros lenguajes. Si dominas los rangos, los bucles y los bytes en este capítulo, dominarás el modelo mental de toda la computación.
 
 ---
 
 ## 2. EXPLICACIÓN TEÓRICA AMPLIADA
 
 ### 2.1 La Anatomía de un Programa C y el Flujo de Compilación
-El proceso de conversión de código fuente \`.c\` a un binario ejecutable pasa por 4 etapas fundamentales:
-
-1. **Preprocesamiento (\`cpp\`)**: Procesa todas las directivas que comienzan con \`#\`. Reemplaza \`#include <stdio.h>\` con el texto literal del archivo de cabecera y sustituye las macros definidas con \`#define\`.
-2. **Compilación (\`gcc -S\`)**: Traduce el código C preprocesado a código fuente en **Lenguaje Ensamblador** específico de la arquitectura (x86_64 o ARM).
-3. **Ensamblado (\`as\`)**: Convierte las instrucciones en ensamblador a código objeto binario nativo (archivo \`.o\` o \`.obj\`).
-4. **Enlazado (*Linking*, \`ld\`)**: Combina el archivo objeto con las bibliotecas del sistema (como \`libc.so\` o \`msvcrt.dll\`) para producir el archivo ejecutable final.
-
-#### Estructura Mínima
-\`\`\`c
-#include <stdio.h> // Directiva del preprocesador
-
-int main(void) {   // Punto de entrada obligatorio
-    printf("¡Hola, mundo! Estándar K&R C\\n");
-    return 0;      // Estado de salida enviado al S.O. (0 = éxito)
-}
-\`\`\`
+Escribir código C es solo el primer paso. El código texto (\`.c\`) debe someterse a 4 etapas violentas de compilación:
+1. **Preprocesamiento (\`cpp\`)**: Resuelve las directivas \`#\`. Si escribes \`#include <stdio.h>\`, el preprocesador copia y pega todo el archivo \`stdio.h\` literalmente ahí antes de seguir.
+2. **Compilación (\`gcc -S\`)**: Traduce el texto fusionado a **Lenguaje Ensamblador** específico de la placa madre del usuario (ej. ARM para Apple Silicon, x86_64 para Intel).
+3. **Ensamblado (\`as\`)**: Mapea el ensamblador a puro código binario (archivo objeto \`.o\`).
+4. **Enlazado (*Linking*, \`ld\`)**: Conecta los cables entre tu programa y las rutinas del Sistema Operativo (\`printf\` llama internamente al kernel de Linux/Windows).
 
 ### 2.2 Mapa de Memoria y Tipos de Datos Primitivos
-En C, el tamaño de cada tipo de dato depende de la arquitectura del compilador (16, 32 o 64 bits). 
+Cada tipo de dato ocupa bloques estrictos en la memoria. No se expanden dinámicamente como en Python.
 
-| Tipo de Dato | Tamaño | Tamaño | Rango Mínimo | Rango Máximo | Especificador \`printf\` |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| \`signed char\` | 1 Byte | 8 bits | -128 | +127 | \`%c\` / \`%d\` |
-| \`unsigned char\` | 1 Byte | 8 bits | 0 | 255 | \`%u\` |
-| \`short int\` | 2 Bytes | 16 bits | -32,768 | +32,767 | \`%hd\` |
-| \`int\` | 4 Bytes | 32 bits | -2,147,483,648 | +2,147,483,647 | \`%d\` / \`%i\` |
-| \`unsigned int\` | 4 Bytes | 32 bits | 0 | 4,294,967,295 | \`%u\` |
-| \`long long\` | 8 Bytes| 64 bits | -9,223,372,036,854,775,808 | +9,223,372,036,854,775,807 | \`%lld\` |
+| Tipo de Dato | Tamaño Habitual | Rango Mínimo | Rango Máximo | Uso / \`printf\` |
+| :--- | :--- | :--- | :--- | :--- |
+| \`signed char\` | 1 Byte (8 bit) | -128 | +127 | \`%c\` / \`%d\` |
+| \`unsigned char\` | 1 Byte | 0 | 255 | \`%u\` |
+| \`short int\` | 2 Bytes (16 bit)| -32,768 | +32,767 | \`%hd\` |
+| \`int\` | 4 Bytes (32 bit)| -2,147,483,648 | +2,147,483,647 | \`%d\` o \`%i\` |
+| \`unsigned int\` | 4 Bytes | 0 | 4,294,967,295 | \`%u\` |
+| \`long long\` | 8 Bytes (64 bit)| $\approx -9 \times 10^{18}$ | $\approx +9 \times 10^{18}$ | \`%lld\` |
 
-#### Integer Overflow (Desbordamiento Entero)
-¿Qué ocurre si a un \`unsigned char\` (rango 0 a 255) cuyo valor actual es 255 se le suma 1?
-Dado que 255 en binario es \`11111111\`, sumar 1 produce \`100000000\`. Como el \`char\` solo tiene 8 bits, el noveno bit se trunca y el valor vuelve a **0**. Para variables con signo (signed), el desbordamiento produce **Comportamiento Indefinido (Undefined Behavior)** según el estándar C, aunque típicamente da la vuelta hacia los números negativos (Complemento a Dos).
+### 2.3 Ejemplo Guiado: Integer Overflow (Desbordamiento)
+Imagina un tablero de carro mecánico con límite \`99,999\`. Si sumas 1, regresa a \`00,000\`. Esto es un Overflow.
+En C, si tenemos un \`unsigned char\` cuyo valor máximo es 255 (en binario \`11111111\`) y hacemos \`x = x + 1\`, la CPU intenta guardar el 256 (\`100000000\`). Pero como la variable solo cabe en 8 bits, el noveno bit se pierde y el resultado circular aterriza en \`0\`. Si pasa con variables \`signed\`, el salto es desde positivo al fondo de los números negativos.
 
-### 2.3 Modelo de I/O de Caracteres (\`getchar\` y \`putchar\`)
-C no posee un concepto incorporado de "strings" o texto avanzado nativo, a diferencia de lenguajes de alto nivel. Todo se procesa como un flujo secuencial (stream) de bytes.
-* \`getchar()\`: Lee exactamente el siguiente carácter (1 byte) disponible en el flujo de entrada estándar (\`stdin\`). Retorna un **entero** (\`int\`), no un \`char\`, para poder incluir el valor especial \`EOF\` (-1) cuando no hay más datos.
-* \`putchar(c)\`: Imprime el byte \`c\` en la salida estándar (\`stdout\`).
+### 2.4 Errores Comunes de los Estudiantes
+- **Olvidar el \`;\`**: En C, el salto de línea no significa fin de instrucción, el \`;\` sí.
+- **División Entera**: Si escribes \`5 / 2\` en C, el resultado es \`2\`, no \`2.5\`. El compilador trunca la parte decimal drásticamente porque ambos operandos son enteros. Debes usar \`5.0 / 2.0\`.
+- **Uso de comillas**: En C, \`'A'\` (simples) es un carácter ASCII (un número interno de 1 byte). \`"A"\` (dobles) es una Cadena de texto (arreglo de bytes terminados en nulo \`\0\`). Son fundamentalmente incompatibles.
 
 ---
 
-## 3. MEJORES PRÁCTICAS Y PELIGROS COMUNES
+## 3. ANÁLISIS DE COMPLEJIDAD Y MEMORIA (C-SPECIFIC)
 
-### ⚠️ Errores Típicos del Novato en C
-1. **Asignación en lugar de Comparación (\`=\` vs \`==\`)**:
-   Un error devastador en C es escribir \`if (x = 5)\`. Esto no compara si \`x\` es igual a 5; asigna \`5\` a \`x\`, y dado que \`5\` es verdadero (no cero), la condición siempre se evalúa como verdadera.
-2. **Tipo de Retorno de \`getchar()\`**:
-   La función \`getchar()\` no retorna un \`char\`, sino un \`int\`. Si almacenas el retorno de \`getchar()\` en un \`char\`, la comparación contra \`EOF\` (\`-1\`) fallará en arquitecturas donde \`char\` es por defecto sin signo (\`unsigned\`).
-3. **Falta del carácter nulo en cadenas de texto**:
-   Las funciones como \`printf("%s", str)\` leen memoria consecutivamente hasta encontrar un byte con valor \`0\`. Si creas un arreglo de caracteres sin \`'\\0'\`, \`printf\` leerá basura en RAM causando un desastre de segmentación (*Segmentation Fault*).
+A diferencia de análisis algorítmico tradicional, aquí la "complejidad" es espacial:
+Si declaras un arreglo \`int arr[1000]\` dentro de \`main()\`, C exige **exactamente** $1000 \times 4\,\text{Bytes} = 4000\,\text{Bytes}$ contiguos de la pila (Stack). La asignación temporal es $O(1)$ directo al apuntador de hardware, lo que hace a C ridículamente rápido en comparación con la instanciación de clases de Java que invoca subrutinas de \`new\`.
 
-## 4. TAREAS Y EJERCICIOS
-Sigue las simulaciones interactivas y prueba compilar los ejemplos en la zona de ejercicios.`,
-    codeExamples: [
+---
+
+## 4. APLICACIONES EN EL MUNDO REAL
+
+1. **Linux Kernel**: El corazón de Android, servidores y sistemas embebidos está escrito enteramente en C puro, gestionando rutinas críticas del hardware al microsegundo.
+2. **Sistemas Embebidos (IoT, Automóviles)**: Controladores ABS de frenos de autos, microondas y satélites usan C porque se asegura una memoria determinista y predecible (no hay una Máquina Virtual pesada bloqueando la CPU).
+
+---
+
+## 5. NOTAS DE IMPLEMENTACIÓN Y GOTCHAS
+- **Paso por valor**: Cuando en C invocas \`mi_funcion(x)\`, C fotocopia silenciosamente el valor de \`x\`. Nada de lo que la función haga modificará tu \`x\` original en la memoria. (Hasta que veamos punteros en el Capítulo 5).
+
+---
+
+## 6. GLOSARIO DE TÉRMINOS
+* **Compilación**: Traducción destructiva de código legible humano a binario ejecutable (0s y 1s).
+* **Preprocesador**: Subsistema que resuelve macros (\`#define\`) e inserta código (\`#include\`) antes de compilar.
+* **Overflow**: Condición destructiva generada al forzar a un tipo de dato a retener un valor matemáticamente mayor a su capacidad de bits en RAM.
+* **ASCII**: Estándar numérico de 1 byte; asigna letras a números (Ej: 'A' es 65).
+
+---
+
+### Para profundizar
+*Acude a la Primera Edición / Segunda Edición de Kernighan & Ritchie (K&R C), Capítulo 1, "A Tutorial Introduction", donde la filosofía del "Hello World" fue documentada académicamente por primera vez en la historia.*
+
+### Guía de Animación
+*A continuación podrás ejecutar C en vivo. Usa el editor para ver cómo la salida cambia según modifiques las líneas o provoques errores.*
+`,
+    quizQuestions: [
       {
-        title: '1. Tabla de Temperatura Fahrenheit - Celsius',
-        description: 'Demostración de variables float, ciclo while y especificación de formato decimal.',
-        code: `#include <stdio.h>
-
-int main() {
-    float fahr = 0;
-    printf("  Fahrenheit   Celsius\\n");
-    printf("  --------------------\\n");
-    while (fahr <= 100) {
-        float celsius = (5.0 / 9.0) * (fahr - 32.0);
-        printf("   %6.1f C -> %6.2f C\\n", fahr, celsius);
-        fahr += 25.0;
-    }
-    return 0;
-}`,
-        expectedOutput: `  Fahrenheit   Celsius\n  --------------------\n      0.0 C -> -17.78 C\n     25.0 C ->  -3.89 C\n     50.0 C ->  10.00 C\n     75.0 C ->  23.89 C\n    100.0 C ->  37.78 C`
+        id: 'c-1-q1',
+        question: '¿Qué diferencia principal estructural tiene C respecto a Python o Java en cuanto a su ejecución?',
+        options: [
+          'C es interpretado línea por línea en runtime.',
+          'C corre sobre el Java Virtual Machine (JVM).',
+          'C compila todo el código directamente al lenguaje binario nativo de la máquina subyacente.',
+          'C posee un Garbage Collector nativo.'
+        ],
+        correctIndex: 2,
+        explanation: 'Ese es el superpoder de C: la conversión total a código máquina específico de la arquitectura antes de la ejecución.'
       },
       {
-        title: '2. Demostración Explícita de Integer Overflow',
-        description: 'Muestra cómo el desbordamiento en signed char provoca wrap-around hacia números negativos.',
-        code: `#include <stdio.h>
-
-int main() {
-    signed char c = 127;
-    printf("Valor antes de desbordar: %d\\n", c);
-    c = c + 1;
-    printf("Valor tras desbordar (+1): %d\\n", c);
-    return 0;
-}`,
-        expectedOutput: `Valor antes de desbordar: 127\nValor tras desbordar (+1): -128`
+        id: 'c-1-q2',
+        question: 'Si a una variable "unsigned char x = 255;" le sumas 1, ¿qué valor adopta x?',
+        options: [
+          '256',
+          '-1',
+          '0',
+          'Genera un error de compilador fatal'
+        ],
+        correctIndex: 2,
+        explanation: 'Genera un Integer Overflow. El bit adicional (noveno) se descarta, quedando los 8 bits en cero (00000000).'
+      },
+      {
+        id: 'c-1-q3',
+        question: '¿Cuál es el resultado de la expresión matemática "5 / 2" en C?',
+        options: [
+          '2.5',
+          '2',
+          '3',
+          'Lanza un warning de "Type Mismatch"'
+        ],
+        correctIndex: 1,
+        explanation: 'En C, la división entre dos enteros es estrictamente truncada, cortando y descartando la parte fraccionaria.'
+      },
+      {
+        id: 'c-1-q4',
+        question: '¿Cuál es la labor principal del Preprocesador de C?',
+        options: [
+          'Optimizar bucles for.',
+          'Generar el archivo .exe final.',
+          'Resolver y expandir texto (ej. copiar el contenido de stdio.h donde dice #include).',
+          'Proveer control de excepciones en runtime.'
+        ],
+        correctIndex: 2,
+        explanation: 'El preprocesador actúa exclusivamente a nivel de texto, copiando bibliotecas y sustituyendo #defines antes de intentar traducir a ensamblador.'
+      },
+      {
+        id: 'c-1-q5',
+        question: '¿Qué sucede cuando se pasa una variable a una función común en C (Paso por valor)?',
+        options: [
+          'La función original pierde el acceso a la variable temporalmente.',
+          'Crea un clon exacto de los bytes, y la función usa esa copia aislada.',
+          'Abre un puente directo en la RAM para editar la variable original.',
+          'Genera un alias con el operador ampersand &.'
+        ],
+        correctIndex: 1,
+        explanation: 'Pass-by-value significa que C siempre realiza una "fotocopia" en memoria. Editar el clon no altera el archivo original en la función llamadora.'
       }
     ],
     exercises: [
       {
-        id: 'ex-cap1-niv1',
-        title: 'Nivel 1 (Conceptual): Predicción de Salida de División Entera',
-        description: 'Dado el programa C que calcula el promedio simple de dos calificaciones enteras, corrige la expresión para evitar la truncación decimal.',
-        cormenRef: 'K&R Cap 1 - Sec 1.2',
-        initialCode: `#include <stdio.h>
-
-float calcularPromedio(int a, int b) {
-    // BUG: (a + b) / 2 trunca decimales!
-    return (a + b) / 2;
-}
-
-int main() {
-    printf("Promedio: %.1f\\n", calcularPromedio(8, 9));
-    return 0;
-}`,
-        solutionCode: `#include <stdio.h>
-
-float calcularPromedio(int a, int b) {
-    // SOLUCIÓN: Usar 2.0f para forzar división en punto flotante
-    return (a + b) / 2.0f;
-}
-
-int main() {
-    printf("Promedio: %.1f\\n", calcularPromedio(8, 9));
-    return 0;
-}`,
-        hint: 'Sustituye la constante entera `2` por la constante flotante `2.0f` para promocionar el cálculo.',
-        testCases: [
-          {
-            id: 'tc-c1',
-            description: 'Verificar promedio preciso de 8 y 9 (8.5)',
-            input: '',
-            expectedOutput: 'Promedio: 8.5'
-          }
-        ],
-        explanation: 'Al usar `2.0f`, C promociona el resultado del paréntesis `(a + b)` a `float`, produciendo la respuesta exacta 8.5 en lugar de truncar a 8.0.'
+        id: 'c-1-ex1',
+        title: 'Nivel 1: Conceptos Tipográficos',
+        description: "En el código C, x = 1; y x == 1 significan dos cosas drásticamente diferentes. ¿Cuál es un error común si te equivocas en un if?",
+        cormenRef: 'K&R Cap 1.2',
+        initialCode: '// Modifica para que retorne 1 si "=" es comparación, o 2 si "==" es comparación.\nint tipoDeOperador() {\n    return 0;\n}',
+        solutionCode: 'int tipoDeOperador() {\n    return 2;\n}',
+        hint: "Un solo igual = es asignación, doble igual == es comparación de igualdad.",
+        explanation: "Cuidado extremo en C: if (x = 1) sobrescribirá x con 1, y como 1 es considerado verdadero en C, la condición siempre se cumple catastróficamente.",
+        testCases: [ { id: 'tc-1', description: 'Test', input: '', expectedOutput: '2' } ]
       },
       {
-        id: 'ex-cap1-niv2-bug',
-        title: 'Nivel 2 (Aplicación Guiada): Encontrar el Bug de Bucle Infinito en getchar()',
-        description: 'Un estudiante declaró la variable `char c` en lugar de `int c` para leer texto hasta encontrar `EOF`. Corrige el tipo de dato de la variable.',
-        cormenRef: 'K&R Cap 1 - Sec 1.5.1',
-        initialCode: `#include <stdio.h>
-
-int procesarEntrada() {
-    // BUG: c declarado como char no puede almacenar EOF (-1) de forma confiable en todos los compiladores
-    char c = 'A';
-    int conteo = 0;
-    // Simulación: incrementa conteo 5 veces
-    while (conteo < 5) {
-        conteo++;
-    }
-    return conteo;
-}`,
-        solutionCode: `#include <stdio.h>
-
-int procesarEntrada() {
-    // SOLUCIÓN: Declarar c como int
-    int c = 'A';
-    int conteo = 0;
-    while (conteo < 5) {
-        conteo++;
-    }
-    return conteo;
-}`,
-        hint: 'Cambia la declaración `char c` por `int c`.',
-        testCases: [
-          {
-            id: 'tc-c2',
-            description: 'Verificar conteo correcto',
-            input: '',
-            expectedOutput: '5'
-          }
-        ],
-        explanation: 'En C, `getchar()` devuelve un `int` de 32 bits para garantizar que el valor especial `-1` (`EOF`) no se confunda con un carácter válido de 8 bits.'
+        id: 'c-1-ex2',
+        title: 'Nivel 1: Predicción de Cadenas',
+        description: '¿Cuál es la diferencia estricta en memoria RAM entre \'A\' y "A"? Escribe un programa que retorne 1 si ocupan lo mismo, o 2 si ocupan distinto tamaño.',
+        cormenRef: 'K&R Cap 1.5',
+        initialCode: 'int compararTamanos() {\n    return 0;\n}',
+        solutionCode: 'int compararTamanos() {\n    return 2;\n}',
+        hint: 'Las comillas dobles añaden un caracter oculto.',
+        explanation: '\'A\' es un char literal (ASCII 65). Ocupa 1 byte. "A" es un arreglo de texto que ocupa 2 bytes (la letra A, y el caracter nulo invisible \\0).',
+        testCases: [ { id: 'tc-2', description: 'Test', input: '', expectedOutput: '2' } ]
       },
       {
-        id: 'ex-cap1-niv3-impl1',
-        title: 'Nivel 3 (Implementación C): Impresión de Tabla Invertida Fahrenheit',
-        description: 'Escribe un programa en C que imprima la tabla de conversiones de Fahrenheit a Celsius en orden inverso, desde 300°F hasta 0°F decreciendo de 20 en 20.',
-        cormenRef: 'K&R Cap 1 - Ejercicio 1-5',
-        initialCode: `#include <stdio.h>
-
-int main() {
-    // TODO: Escribe un ciclo for descendente desde 300 hasta 0
-    // Formato de salida: "%3d F = %6.1f C\n"
-    return 0;
-}`,
-        solutionCode: `#include <stdio.h>
-
-int main() {
-    for (int fahr = 300; fahr >= 0; fahr -= 20) {
-        printf("%3d F = %6.1f C\\n", fahr, (5.0 / 9.0) * (fahr - 32.0));
-    }
-    return 0;
-}`,
-        hint: 'Utiliza la estructura de control `for (int fahr = 300; fahr >= 0; fahr -= 20)`.',
-        testCases: [
-          {
-            id: 'tc-c3',
-            description: 'Verificar primera línea para 300°F',
-            input: '',
-            expectedOutput: '300 F =  148.9 C'
-          }
-        ],
-        explanation: 'El ciclo `for` decrece la variable en pasos de 20 hasta alcanzar 0, calculando con precisión de punto flotante la conversión.'
+        id: 'c-1-ex3',
+        title: 'Nivel 2: Rellena los Bloques (I/O Básico)',
+        description: "Escribe el bloque completo #include y main() para imprimir \"Z\". Usa la biblioteca correcta.",
+        cormenRef: 'K&R Cap 1.1',
+        initialCode: '#include <_______>\n\nint main(____) {\n    printf("____");\n    return __;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main(void) {\n    printf("Z");\n    return 0;\n}',
+        hint: 'La biblioteca Estándar de Entrada y Salida (Standard I/O). Y C pide return 0 al S.O.',
+        explanation: "El #include <stdio.h> es vital para que el compilador sepa qué es printf. El main(void) explicita que no espera argumentos, y el return 0 informa al SO que terminó sin errores.",
+        testCases: [ { id: 'tc-3', description: 'Test', input: '', expectedOutput: 'Z' } ]
       },
       {
-        id: 'ex-cap1-niv4-analisis',
-        title: 'Nivel 4 (Análisis): Detector de Límites de Tipos (Limits.h)',
-        description: 'Escribe una función C `int verificarRangoInt(long long val)` que devuelva `1` si el valor puede almacenarse dentro de un `int` de 32 bits firmado sin sufrir overflow, o `0` si provocará desbordamiento.',
-        cormenRef: 'K&R Cap 2 - Tipos y Tamaños',
-        initialCode: `#include <stdio.h>
-
-int verificarRangoInt(long long val) {
-    // Un int firmado de 32 bits abarca de -2147483648 a 2147483647
-    return 0;
-}`,
-        solutionCode: `#include <stdio.h>
-
-int verificarRangoInt(long long val) {
-    if (val >= -2147483648LL && val <= 2147483647LL) {
-        return 1;
-    }
-    return 0;
-}`,
-        hint: 'Compara si `val >= -2147483648LL` y `val <= 2147483647LL`.',
-        testCases: [
-          {
-            id: 'tc-c4a',
-            description: 'Para val = 500000 (Dentro de rango)',
-            input: '500000',
-            expectedOutput: '1'
-          },
-          {
-            id: 'tc-c4b',
-            description: 'Para val = 3000000000 (Fuera de rango)',
-            input: '3000000000',
-            expectedOutput: '0'
-          }
-        ],
-        explanation: 'Validar los rangos antes de realizar asignaciones evita bugs de overflow sutiles en aplicaciones críticas de C.'
+        id: 'c-1-ex4',
+        title: 'Nivel 2: Encontrar el Bug Silencioso',
+        description: 'Encuentra y corrige el error fatal en este bucle while básico.',
+        cormenRef: 'K&R Cap 1.2',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    int i = 0;\n    while (i < 5)\n        printf("X");\n        i = i + 1;\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int i = 0;\n    while (i < 5) {\n        printf("X");\n        i = i + 1;\n    }\n    return 0;\n}',
+        hint: 'C no depende de la indentación (tabuladores) como Python. ¿Qué hace falta para agrupar múltiples líneas en un bucle?',
+        explanation: "Sin las llaves {} agrupadoras, el bucle while de C ejecuta únicamente la línea inmediata inferior (printf). La suma i = i + 1 queda fuera del bucle, generando un ciclo infinito destructivo.",
+        testCases: [ { id: 'tc-4', description: 'Test', input: '', expectedOutput: 'XXXXX' } ]
       },
       {
-        id: 'ex-cap1-niv5-desafio',
-        title: 'Nivel 5 (Desafío Avanzado Integrador): Parser de Palabras y Frecuencias ASCII',
-        description: 'Implementa una función en C `int contarPalabras(const char *s)` que recorra una cadena de caracteres terminada en `\\0` utilizando una máquina de estados de dos posiciones (DENTRO_DE_PALABRA / FUERA_DE_PALABRA) y devuelva el número exacto de palabras. [Marcado como Avanzado]',
-        cormenRef: 'K&R Cap 1 - Sec 1.5.4 (Conteo de Palabras)',
-        initialCode: `#include <stdio.h>
-
-int contarPalabras(const char *s) {
-    // TODO: Implementa la máquina de estados con bandera de estado (0 u 1)
-    return 0;
-}
-
-int main() {
-    char texto[] = "Estructuras de Datos y Algoritmos en C";
-    printf("Palabras: %d\\n", contarPalabras(texto));
-    return 0;
-}`,
-        solutionCode: `#include <stdio.h>
-
-int contarPalabras(const char *s) {
-    int estado = 0; // 0 = FUERA, 1 = DENTRO
-    int contador = 0;
-    for (int i = 0; s[i] != '\\0'; i++) {
-        if (s[i] == ' ' || s[i] == '\\n' || s[i] == '\\t') {
-            estado = 0;
-        } else if (estado == 0) {
-            estado = 1;
-            contador++;
-        }
-    }
-    return contador;
-}
-
-int main() {
-    char texto[] = "Estructuras de Datos y Algoritmos en C";
-    printf("Palabras: %d\\n", contarPalabras(texto));
-    return 0;
-}`,
-        hint: 'Usa la variable `estado = 0` para denotar que estás en un espacio en blanco. Cuando encuentras un carácter diferente a espacio y estabas fuera, cambia `estado = 1` e incrementa el contador.',
+        id: 'c-1-ex5',
+        title: 'Nivel 3: Implementación de Bucle Celsius a Fahrenheit',
+        description: 'Recrea el famoso primer programa de K&R: Imprime una tabla de conversión de grados Celsius a Fahrenheit, para los valores Celsius: 0, 20, 40. (Fórmula: F = C * (9.0/5.0) + 32). ¡Recuerda usar decimales reales!',
+        cormenRef: 'K&R Cap 1.2',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    // Tu código aquí\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    float fahr, celsius;\n    int lower = 0, upper = 40, step = 20;\n    \n    celsius = lower;\n    while (celsius <= upper) {\n        fahr = celsius * (9.0 / 5.0) + 32.0;\n        printf("%.1f %.1f\\n", celsius, fahr);\n        celsius = celsius + step;\n    }\n    return 0;\n}',
+        hint: "Usa float o double para atrapar decimales, y %f en el printf. Si pones 9/5 en C, te devolverá un 1 cerrado.",
+        explanation: "Esta implementación obliga al alumno a usar un bucle while, manejar variables fraccionarias explícitamente (9.0 / 5.0), y evitar la división entera destructiva natural de C.",
         testCases: [
-          {
-            id: 'tc-c5',
-            description: 'Verificar el conteo de 7 palabras en la frase de prueba',
-            input: '',
-            expectedOutput: 'Palabras: 7'
-          }
-        ],
-        explanation: 'La máquina de estados de K&R detecta las transiciones desde espacios blancos hacia caracteres visibles, contando exactamente las secuencias continuas de texto.'
+          { id: '1', description: 'Prueba la salida correcta del ciclo', input: '', expectedOutput: "0.0 32.0\\n20.0 68.0\\n40.0 104.0\\n" }
+        ]
+      },
+      {
+        id: 'c-1-ex6',
+        title: 'Nivel 3: Detectar EOF en Lectura de Flujos',
+        description: 'foo',
+        cormenRef: 'K&R Cap 1.5',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    // Tu código aquí\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int c;\n    while ((c = getchar()) != \'\\n\') {\n        putchar(c);\n    }\n    return 0;\n}',
+        hint: 'Declara `c` como `int`. Usa el bucle `while((c = getchar()) != \'\\n\')`.',
+        explanation: 'Muestra la forma idiomática y densa de C de realizar asignaciones adentro del bloque condicional del while.',
+        testCases: [
+          { id: '1', description: 'Lector simple de líneas', input: 'HOLA\n', expectedOutput: 'HOLA' }
+        ]
+      },
+      {
+        id: 'c-1-ex7',
+        title: 'Nivel 4: Análisis C vs Hardware',
+        description: "Escribe un programa que imprima en bytes el tamaño de la variable int en tu máquina actual, usando sizeof().",
+        cormenRef: 'K&R Cap 2.2',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    // Tu código aquí\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    printf("%zu", sizeof(int));\n    return 0;\n}',
+        hint: 'Usa `printf("%zu", sizeof(int));` o `%lu`.',
+        explanation: 'C define un estándar mínimo, pero delega al compilador y al S.O. el tamaño real en bytes para emparejarse óptimamente con el tamaño de los registros del procesador.',
+        testCases: [
+          { id: '1', description: 'Tamaño en máquina local', input: '', expectedOutput: '4' }
+        ]
+      },
+      {
+        id: 'c-1-ex8',
+        title: 'Nivel 5: Desafío de Máscaras y Truncamiento',
+        description: 'Asigna el valor 300 a una variable entera. Hazle cast directo a `unsigned char`, y luego imprime este nuevo valor como un entero `%u`. Verás empíricamente el truncamiento Overflow.',
+        cormenRef: 'K&R Cap 2.7',
+        initialCode: '#include <stdio.h>\n\nint main() {\n    int grande = 300;\n    // Tu código aquí\n    return 0;\n}',
+        solutionCode: '#include <stdio.h>\n\nint main() {\n    int grande = 300;\n    unsigned char cortado = (unsigned char)grande;\n    printf("%u", cortado);\n    return 0;\n}',
+        hint: 'Hacer cast `(unsigned char)grande` le arranca los bits superiores al número.',
+        explanation: '300 en binario es `100101100`. Al asignarlo forzosamente a un `unsigned char` (8 bits), la CPU corta todo el exceso. El resultado en RAM es `00101100`, que convertido de nuevo a decimal, es 44.',
+        testCases: [
+          { id: '1', description: 'Truncando 300', input: '', expectedOutput: '44' }
+        ]
       }
     ],
-    quizQuestions: [
-      {
-        id: 'q-c1-1',
-        question: '¿Por qué la función getchar() devuelve un int en lugar de un char en el estándar K&R C?',
-        options: [
-          'Porque en C no existe el tipo primitivo char.',
-          'Para poder devolver la constante especial EOF (-1), el cual no cabe en un char sin signo (0-255).',
-          'Porque los procesadores x86 solo pueden procesar números enteros de 32 bits.',
-          'Para permitir la lectura de caracteres unicode utf-32 exclusivamente.'
-        ],
-        correctIndex: 1,
-        explanation: 'getchar() debe retornar cualquier byte válido (0 a 255) y además el código de control EOF (-1). Para no solapar -1 con el carácter 255 (0xFF), se requiere un entero de mayor capacidad.'
-      },
-      {
-        id: 'q-c1-2',
-        question: '¿Cuál es el resultado de evaluar la expresión (5 / 9) * 100 en lenguaje C?',
-        options: ['55', '55.55', '0', 'Error de compilación'],
-        correctIndex: 2,
-        explanation: 'Dado que 5 y 9 son enteros, la división 5 / 9 evalúa primero a 0 (división entera con truncamiento). Luego 0 * 100 resulta en 0.'
-      },
-      {
-        id: 'q-c1-3',
-        question: '¿Qué sucede al declarar un `signed char c = 127;` y ejecutar `c = c + 1;` en una arquitectura estándar de Complemento a Dos?',
-        options: [
-          'El valor de c se incrementa normalmente a 128.',
-          'Ocurre un desbordamiento (Integer Overflow) y c pasa a valer -128.',
-          'El programa lanza un kernel panic del sistema operativo.',
-          'La variable c se borra automáticamente de la memoria RAM.'
-        ],
-        correctIndex: 1,
-        explanation: 'En complemento a dos de 8 bits, 127 es 01111111. Sumar 1 produce 10000000 en binario, que corresponde al valor negativo -128.'
-      },
-      {
-        id: 'q-c1-4',
-        question: '¿Cuál es la función del carácter nulo `\\0` en una cadena de texto en C?',
-        options: [
-          'Indicar al compilador que la cadena debe convertirse a mayúsculas.',
-          'Servir como centinela de terminación en memoria RAM para saber dónde finaliza la cadena.',
-          'Imprimir un espacio en blanco en la consola estándar.',
-          'Reservar memoria en el disco duro para almacenar la cadena.'
-        ],
-        correctIndex: 1,
-        explanation: 'Las cadenas en C son arreglos simples de caracteres sin encabezados de longitud. El byte `\\0` (ASCII 0) marca el fin exacto de la cadena en RAM.'
-      },
-      {
-        id: 'q-c1-5',
-        question: '¿Qué etapa de compilación procesa las directivas como `#include` y `#define`?',
-        options: ['El Enlazador (Linker)', 'El Preprocesador', 'El Ensamblador', 'El Optimizador de Código Machine'],
-        correctIndex: 1,
-        explanation: 'El preprocesador (`cpp`) actúa antes del compilador propiamente dicho, sustituyendo texto literal y expandiendo macros.'
-      }
-    ]
+    codeExamples: []
   },
 
   {
